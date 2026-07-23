@@ -11903,8 +11903,6 @@ echo -e "${gl_huang}10.  ${gl_bai}ساختمان وب سایت LDNMP"
 echo -e "${gl_kjlan}11.  ${gl_bai}بازار کاربرد"
 echo -e "${gl_kjlan}12.  ${gl_bai}فضای کاری من"
 echo -e "${gl_kjlan}13.  ${gl_bai}ابزار سیستم"
-echo -e "${gl_kjlan}14.  ${gl_bai}کنترل خوشه سرور"
-echo -e "${gl_kjlan}15.  ${gl_bai}ستون تبلیغاتی"
 echo -e "${gl_kjlan}------------------------${gl_bai}"
 echo -e "${gl_kjlan}p.   ${gl_bai}اسکریپت افتتاح سرور Palu Palu Phantom Beast"
 echo -e "${gl_kjlan}------------------------${gl_bai}"
@@ -11930,8 +11928,6 @@ case $choice in
   11) linux_panel ;;
   12) linux_work ;;
   13) linux_Settings ;;
-  14) linux_cluster ;;
-  15) kejilion_Affiliates ;;
   p) send_stats "اسکریپت افتتاح سرور Palu Palu Phantom Beast" ; cd ~
 	 curl -sS -O ${gh_proxy}raw.githubusercontent.com/DeraDream/sh/main/palworld.sh ; chmod +x palworld.sh ; ./palworld.sh
 	 exit

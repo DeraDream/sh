@@ -11932,8 +11932,6 @@ echo -e "${gl_huang}10.  ${gl_bai}LDNMP Сайт Построение"
 echo -e "${gl_kjlan}11.  ${gl_bai}Рынок приложений"
 echo -e "${gl_kjlan}12.  ${gl_bai}Мое рабочее пространство"
 echo -e "${gl_kjlan}13.  ${gl_bai}Системные инструменты"
-echo -e "${gl_kjlan}14.  ${gl_bai}Управление кластером сервера"
-echo -e "${gl_kjlan}15.  ${gl_bai}Рекламная колонка"
 echo -e "${gl_kjlan}------------------------${gl_bai}"
 echo -e "${gl_kjlan}p.   ${gl_bai}Сценарий открытия сервера Phantom Beast Palu"
 echo -e "${gl_kjlan}------------------------${gl_bai}"
@@ -11959,8 +11957,6 @@ case $choice in
   11) linux_panel ;;
   12) linux_work ;;
   13) linux_Settings ;;
-  14) linux_cluster ;;
-  15) kejilion_Affiliates ;;
   p) send_stats "Сценарий открытия сервера Phantom Beast Palu" ; cd ~
 	 curl -sS -O ${gh_proxy}raw.githubusercontent.com/DeraDream/sh/main/palworld.sh ; chmod +x palworld.sh ; ./palworld.sh
 	 exit
