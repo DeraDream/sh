@@ -20174,6 +20174,7 @@ linux_Settings() {
 	  echo -e "${gl_kjlan}39.  ${gl_bai}Command Favorites${gl_huang}★${gl_bai}                       ${gl_kjlan}40.  ${gl_bai}Network card management tool"
 	  echo -e "${gl_kjlan}------------------------"
 	  echo -e "${gl_kjlan}41.  ${gl_bai}System log management tool${gl_huang}★${gl_bai}                 ${gl_kjlan}42.  ${gl_bai}System variable management tool"
+	  echo -e "${gl_kjlan}43.  ${gl_bai}SSH login summary management ${gl_huang}★${gl_bai}"
 	  echo -e "${gl_kjlan}------------------------"
 	  echo -e "${gl_kjlan}61.  ${gl_bai}message board${gl_kjlan}66.  ${gl_bai}One-stop system tuning${gl_huang}★${gl_bai}"
 	  echo -e "${gl_kjlan}99.  ${gl_bai}Restart the server${gl_kjlan}100. ${gl_bai}Privacy and security"
@@ -21094,6 +21095,10 @@ EOF
 			  env_menu
 			  ;;
 
+		  43)
+			  bash <(curl -fsSL ${gh_proxy}raw.githubusercontent.com/DeraDream/sh/main/ssh_login_summary.sh)
+			  ;;
+
 
 		  61)
 			clear
@@ -21905,8 +21910,6 @@ echo -e "${gl_kjlan}6.   ${gl_bai}Docker management"
 echo -e "${gl_kjlan}7.   ${gl_bai}WARP management"
 echo -e "${gl_kjlan}8.   ${gl_bai}Test script collection"
 echo -e "${gl_kjlan}9.   ${gl_bai}Oracle Cloud Script Collection"
-echo -e "${gl_huang}10.  ${gl_bai}LDNMP website building"
-echo -e "${gl_kjlan}11.  ${gl_bai}application market"
 echo -e "${gl_kjlan}12.  ${gl_bai}Backend workspace"
 echo -e "${gl_kjlan}13.  ${gl_bai}system tools"
 echo -e "${gl_kjlan}------------------------${gl_bai}"
@@ -21928,8 +21931,6 @@ case $choice in
 	;;
   8) linux_test ;;
   9) linux_Oracle ;;
-  10) linux_ldnmp ;;
-  11) linux_panel ;;
   12) linux_work ;;
   13) linux_Settings ;;
   00) kejilion_update ;;

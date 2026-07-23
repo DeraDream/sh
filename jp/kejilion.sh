@@ -20174,6 +20174,7 @@ linux_Settings() {
 	  echo -e "${gl_kjlan}39.  ${gl_bai}コマンドのお気に入り${gl_huang}★${gl_bai}                       ${gl_kjlan}40.  ${gl_bai}ネットワークカード管理ツール"
 	  echo -e "${gl_kjlan}------------------------"
 	  echo -e "${gl_kjlan}41.  ${gl_bai}システムログ管理ツール${gl_huang}★${gl_bai}                 ${gl_kjlan}42.  ${gl_bai}システム変数管理ツール"
+	  echo -e "${gl_kjlan}43.  ${gl_bai}SSH login summary management ${gl_huang}★${gl_bai}"
 	  echo -e "${gl_kjlan}------------------------"
 	  echo -e "${gl_kjlan}61.  ${gl_bai}掲示板${gl_kjlan}66.  ${gl_bai}ワンストップのシステムチューニング${gl_huang}★${gl_bai}"
 	  echo -e "${gl_kjlan}99.  ${gl_bai}サーバーを再起動します${gl_kjlan}100. ${gl_bai}プライバシーとセキュリティ"
@@ -21094,6 +21095,10 @@ EOF
 			  env_menu
 			  ;;
 
+		  43)
+			  bash <(curl -fsSL ${gh_proxy}raw.githubusercontent.com/DeraDream/sh/main/ssh_login_summary.sh)
+			  ;;
+
 
 		  61)
 			clear
@@ -21905,8 +21910,6 @@ echo -e "${gl_kjlan}6.   ${gl_bai}Docker管理"
 echo -e "${gl_kjlan}7.   ${gl_bai}ワープ管理"
 echo -e "${gl_kjlan}8.   ${gl_bai}テストスクリプト集"
 echo -e "${gl_kjlan}9.   ${gl_bai}Oracle Cloudスクリプト・コレクション"
-echo -e "${gl_huang}10.  ${gl_bai}LDNMP Web サイトの構築"
-echo -e "${gl_kjlan}11.  ${gl_bai}アプリケーション市場"
 echo -e "${gl_kjlan}12.  ${gl_bai}バックエンドワークスペース"
 echo -e "${gl_kjlan}13.  ${gl_bai}システムツール"
 echo -e "${gl_kjlan}------------------------${gl_bai}"
@@ -21928,8 +21931,6 @@ case $choice in
 	;;
   8) linux_test ;;
   9) linux_Oracle ;;
-  10) linux_ldnmp ;;
-  11) linux_panel ;;
   12) linux_work ;;
   13) linux_Settings ;;
   00) kejilion_update ;;

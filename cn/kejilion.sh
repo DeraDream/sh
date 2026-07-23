@@ -20168,6 +20168,7 @@ linux_Settings() {
 	  echo -e "${gl_kjlan}39.  ${gl_bai}命令收藏夹 ${gl_huang}★${gl_bai}                       ${gl_kjlan}40.  ${gl_bai}网卡管理工具"
 	  echo -e "${gl_kjlan}------------------------"
 	  echo -e "${gl_kjlan}41.  ${gl_bai}系统日志管理工具 ${gl_huang}★${gl_bai}                 ${gl_kjlan}42.  ${gl_bai}系统变量管理工具"
+	  echo -e "${gl_kjlan}43.  ${gl_bai}SSH登录摘要管理 ${gl_huang}★${gl_bai}"
 	  echo -e "${gl_kjlan}------------------------"
 	  echo -e "${gl_kjlan}61.  ${gl_bai}留言板                             ${gl_kjlan}66.  ${gl_bai}一条龙系统调优 ${gl_huang}★${gl_bai}"
 	  echo -e "${gl_kjlan}99.  ${gl_bai}重启服务器                         ${gl_kjlan}100. ${gl_bai}隐私与安全"
@@ -21088,6 +21089,10 @@ EOF
 			  env_menu
 			  ;;
 
+		  43)
+			  bash <(curl -fsSL ${gh_proxy}raw.githubusercontent.com/DeraDream/sh/main/ssh_login_summary.sh)
+			  ;;
+
 
 		  61)
 			clear
@@ -21899,8 +21904,6 @@ echo -e "${gl_kjlan}6.   ${gl_bai}Docker管理"
 echo -e "${gl_kjlan}7.   ${gl_bai}WARP管理"
 echo -e "${gl_kjlan}8.   ${gl_bai}测试脚本合集"
 echo -e "${gl_kjlan}9.   ${gl_bai}甲骨文云脚本合集"
-echo -e "${gl_huang}10.  ${gl_bai}LDNMP建站"
-echo -e "${gl_kjlan}11.  ${gl_bai}应用市场"
 echo -e "${gl_kjlan}12.  ${gl_bai}后台工作区"
 echo -e "${gl_kjlan}13.  ${gl_bai}系统工具"
 echo -e "${gl_kjlan}------------------------${gl_bai}"
@@ -21922,8 +21925,6 @@ case $choice in
 	;;
   8) linux_test ;;
   9) linux_Oracle ;;
-  10) linux_ldnmp ;;
-  11) linux_panel ;;
   12) linux_work ;;
   13) linux_Settings ;;
   00) kejilion_update ;;

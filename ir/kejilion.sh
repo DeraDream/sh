@@ -10182,6 +10182,7 @@ linux_Settings() {
 	  echo -e "${gl_kjlan}37.  ${gl_bai}تاریخ خط فرمان${gl_kjlan}38.  ${gl_bai}ابزار همگام سازی از راه دور RSYNC"
 	  echo -e "${gl_kjlan}------------------------"
 	  echo -e "${gl_kjlan}41.  ${gl_bai}صفحه پیام${gl_kjlan}66.  ${gl_bai}بهینه سازی سیستم یک مرحله ای${gl_huang}★${gl_bai}"
+	  echo -e "${gl_kjlan}43.  ${gl_bai}SSH login summary management ${gl_huang}★${gl_bai}"
 	  echo -e "${gl_kjlan}99.  ${gl_bai}سرور را مجدداً راه اندازی کنید${gl_kjlan}100. ${gl_bai}حریم خصوصی و امنیت"
 	  echo -e "${gl_kjlan}101. ${gl_bai}استفاده پیشرفته از فرمان k${gl_huang}★${gl_bai}                    ${gl_kjlan}102. ${gl_bai}حذف اسکریپت شیر ​​فناوری"
 	  echo -e "${gl_kjlan}------------------------"
@@ -11176,6 +11177,10 @@ EOF
 			  ;;
 
 
+		  43)
+			  bash <(curl -fsSL ${gh_proxy}raw.githubusercontent.com/DeraDream/sh/main/ssh_login_summary.sh)
+			  ;;
+
 		  41)
 			clear
 			send_stats "صفحه پیام"
@@ -11899,8 +11904,6 @@ echo -e "${gl_kjlan}6.   ${gl_bai}مدیریت داکر"
 echo -e "${gl_kjlan}7.   ${gl_bai}مدیریت پیچ و خم"
 echo -e "${gl_kjlan}8.   ${gl_bai}مجموعه اسکریپت تست"
 echo -e "${gl_kjlan}9.   ${gl_bai}مجموعه اسکریپت Oracle Cloud"
-echo -e "${gl_huang}10.  ${gl_bai}ساختمان وب سایت LDNMP"
-echo -e "${gl_kjlan}11.  ${gl_bai}بازار کاربرد"
 echo -e "${gl_kjlan}12.  ${gl_bai}فضای کاری من"
 echo -e "${gl_kjlan}13.  ${gl_bai}ابزار سیستم"
 echo -e "${gl_kjlan}------------------------${gl_bai}"
@@ -11924,8 +11927,6 @@ case $choice in
 	;;
   8) linux_test ;;
   9) linux_Oracle ;;
-  10) linux_ldnmp ;;
-  11) linux_panel ;;
   12) linux_work ;;
   13) linux_Settings ;;
   p) send_stats "اسکریپت افتتاح سرور Palu Palu Phantom Beast" ; cd ~

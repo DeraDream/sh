@@ -10210,6 +10210,7 @@ linux_Settings() {
 	  echo -e "${gl_kjlan}37.  ${gl_bai}История командной строки${gl_kjlan}38.  ${gl_bai}инструмент дистанционной синхронизации RSYNC"
 	  echo -e "${gl_kjlan}------------------------"
 	  echo -e "${gl_kjlan}41.  ${gl_bai}Доска объявлений${gl_kjlan}66.  ${gl_bai}Оптимизация системы универсальной системы${gl_huang}★${gl_bai}"
+	  echo -e "${gl_kjlan}43.  ${gl_bai}SSH login summary management ${gl_huang}★${gl_bai}"
 	  echo -e "${gl_kjlan}99.  ${gl_bai}Перезагрузите сервер${gl_kjlan}100. ${gl_bai}Конфиденциальность и безопасность"
 	  echo -e "${gl_kjlan}101. ${gl_bai}Усовершенствованное использование команды K${gl_huang}★${gl_bai}                    ${gl_kjlan}102. ${gl_bai}Сценарий удаления технического льва"
 	  echo -e "${gl_kjlan}------------------------"
@@ -11205,6 +11206,10 @@ EOF
 			  ;;
 
 
+		  43)
+			  bash <(curl -fsSL ${gh_proxy}raw.githubusercontent.com/DeraDream/sh/main/ssh_login_summary.sh)
+			  ;;
+
 		  41)
 			clear
 			send_stats "Доска объявлений"
@@ -11928,8 +11933,6 @@ echo -e "${gl_kjlan}6.   ${gl_bai}Docker Management"
 echo -e "${gl_kjlan}7.   ${gl_bai}Управление деформацией"
 echo -e "${gl_kjlan}8.   ${gl_bai}Коллекция тестовых скриптов"
 echo -e "${gl_kjlan}9.   ${gl_bai}Коллекция сценариев Oracle Cloud"
-echo -e "${gl_huang}10.  ${gl_bai}LDNMP Сайт Построение"
-echo -e "${gl_kjlan}11.  ${gl_bai}Рынок приложений"
 echo -e "${gl_kjlan}12.  ${gl_bai}Мое рабочее пространство"
 echo -e "${gl_kjlan}13.  ${gl_bai}Системные инструменты"
 echo -e "${gl_kjlan}------------------------${gl_bai}"
@@ -11953,8 +11956,6 @@ case $choice in
 	;;
   8) linux_test ;;
   9) linux_Oracle ;;
-  10) linux_ldnmp ;;
-  11) linux_panel ;;
   12) linux_work ;;
   13) linux_Settings ;;
   p) send_stats "Сценарий открытия сервера Phantom Beast Palu" ; cd ~
