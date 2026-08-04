@@ -1,5 +1,5 @@
 #!/bin/bash
-sh_v="4.5.10"
+sh_v="4.5.11"
 
 
 gl_hui='\e[37m'
@@ -19852,7 +19852,7 @@ linux_Settings() {
 	  echo -e "${gl_kjlan}39.  ${gl_bai}命令收藏夹 ${gl_huang}★${gl_bai}"
 	  echo -e "${gl_kjlan}------------------------"
 	  echo -e "${gl_kjlan}41.  ${gl_bai}系统日志管理工具 ${gl_huang}★${gl_bai}                 ${gl_kjlan}42.  ${gl_bai}系统变量管理工具"
-	  echo -e "${gl_kjlan}43.  ${gl_bai}SSH登录摘要管理 ${gl_huang}★${gl_bai}"
+	  echo -e "${gl_kjlan}43.  ${gl_bai}SSH登录摘要管理 ${gl_huang}★${gl_bai}                 ${gl_kjlan}44.  ${gl_bai}Komari Agent流量修正"
 	  echo -e "${gl_kjlan}------------------------"
 	  echo -e "${gl_kjlan}61.  ${gl_bai}留言板                             ${gl_kjlan}66.  ${gl_bai}一条龙系统调优 ${gl_huang}★${gl_bai}"
 	  echo -e "${gl_kjlan}99.  ${gl_bai}重启服务器                         ${gl_kjlan}100. ${gl_bai}隐私与安全"
@@ -20714,6 +20714,10 @@ EOF
 
 		  43)
 			  bash <(curl -fsSL ${gh_proxy}raw.githubusercontent.com/DeraDream/sh/main/ssh_login_summary.sh)
+			  ;;
+
+		  44)
+			  bash <(curl -fsSL ${gh_proxy}raw.githubusercontent.com/DeraDream/sh/main/komari_traffic_fix.sh)
 			  ;;
 
 

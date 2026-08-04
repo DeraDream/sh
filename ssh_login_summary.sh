@@ -3,6 +3,7 @@
 set -u
 
 SUMMARY_SCRIPT="/etc/profile.d/kejilion-login-summary.sh"
+VPS_STATUS_SCRIPT="/etc/profile.d/server-status.sh"
 STATE_DIR="/var/lib/kejilion-login-summary"
 MOTD_BACKUP="$STATE_DIR/motd.backup"
 MOTD_MISSING="$STATE_DIR/motd.was-missing"
@@ -59,6 +60,7 @@ disable_default_motd() {
 
 install_summary() {
 	disable_default_motd
+	rm -f "$VPS_STATUS_SCRIPT"
 
 	cat > "$SUMMARY_SCRIPT" <<'SUMMARY_EOF'
 #!/bin/sh
@@ -147,8 +149,100 @@ SUMMARY_EOF
 	echo "重新建立 SSH 连接后即可看到效果。"
 }
 
-restore_default_motd() {
+install_vps_status() {
+	# 两种摘要同时启用会重复显示，安装新版时自动移除旧版摘要。
 	rm -f "$SUMMARY_SCRIPT"
+
+	cat > "$VPS_STATUS_SCRIPT" <<'STATUS_EOF'
+#!/usr/bin/env bash
+
+# 只允许交互式 shell。
+case $- in
+    *i*) ;;
+    *) return 0 2>/dev/null || exit 0 ;;
+esac
+
+# 只允许 SSH 会话。
+[ -n "${SSH_CONNECTION:-}" ] || return 0 2>/dev/null || exit 0
+
+# 同一个 SSH 会话及其所有子 shell 只显示一次。
+[ -z "${VPS_STATUS_SHOWN:-}" ] || return 0 2>/dev/null || exit 0
+
+# 只允许 sshd 直接创建的初始登录 shell，排除任务、sudo 和嵌套 login shell。
+PARENT_COMMAND="$(ps -o comm= -p "$PPID" 2>/dev/null | awk '{print $1}')"
+case "$PARENT_COMMAND" in
+    sshd|sshd:*) ;;
+    *) return 0 2>/dev/null || exit 0 ;;
+esac
+
+export VPS_STATUS_SHOWN=1
+set +v
+set +x
+
+CPU_MODEL="$(lscpu 2>/dev/null | awk -F: '/Model name/ {sub(/^[[:space:]]+/, "", $2); print $2; exit}')"
+if [ -z "$CPU_MODEL" ]; then
+    CPU_MODEL="$(awk -F: '/model name|Hardware|Processor/ {sub(/^[[:space:]]+/, "", $2); print $2; exit}' /proc/cpuinfo 2>/dev/null)"
+fi
+
+CPU_USAGE=""
+if command -v top >/dev/null 2>&1; then
+    CPU_USAGE="$(LC_ALL=C top -bn1 2>/dev/null | awk '
+        /Cpu\(s\)|^%?Cpu/ {
+            for (i=1; i<=NF; i++) {
+                if ($i ~ /id,?$/ && i > 1) {
+                    idle=$(i-1); gsub(/[^0-9.]/, "", idle)
+                    if (idle != "") printf "%.1f%%", 100-idle
+                    exit
+                }
+            }
+        }')"
+fi
+
+MEMORY="$(free -b 2>/dev/null | awk '/^Mem:/ {if ($2 > 0) printf "总%.1fGi / 已用%.0fMi / 可用%.1fGi / 使用率%.1f%%", $2/1073741824, $3/1048576, $7/1073741824, $3/$2*100}')"
+SWAP="$(free -h 2>/dev/null | awk '/^Swap:/ {print $2}')"
+DISK="$(df -hP / 2>/dev/null | awk 'NR == 2 {print $2, "(已用", $3, ", 可用", $4, ", 使用率", $5 ")"}')"
+
+PUBLIC_IPV4=""
+PUBLIC_IPV6=""
+if command -v curl >/dev/null 2>&1; then
+    PUBLIC_IPV4="$(curl -4fsS --connect-timeout 1 --max-time 2 https://api.ipify.org 2>/dev/null | tr -d '[:space:]' || true)"
+    if command -v ip >/dev/null 2>&1 && ip -6 route show default 2>/dev/null | grep -q .; then
+        PUBLIC_IPV6="$(curl -6fsS --connect-timeout 1 --max-time 2 https://api64.ipify.org 2>/dev/null | tr -d '[:space:]' || true)"
+    fi
+fi
+
+PRIVATE_IPV4="$(ip -o -4 addr show 2>/dev/null | awk '$2 != "lo" {split($4,c,"/"); split(c[1],o,"."); if (o[1]==10 || (o[1]==172 && o[2]>=16 && o[2]<=31) || (o[1]==192 && o[2]==168) || (o[1]==100 && o[2]>=64 && o[2]<=127) || (o[1]==169 && o[2]==254)) print $2 "=" $4}' | paste -sd ' ' -)"
+PRIVATE_IPV6="$(ip -o -6 addr show 2>/dev/null | awk '$2 != "lo" {a=tolower($4); if (a ~ /^(fc|fd|fe[89ab])/) print $2 "=" $4}' | paste -sd ' ' -)"
+
+echo "========== VPS 摘要 =========="
+echo "主机名称: $(hostname)"
+echo "CPU架构: $(uname -m)"
+echo "CPU线程: $(nproc 2>/dev/null || echo 未知)"
+echo "CPU型号: ${CPU_MODEL:-未知}"
+echo "CPU使用率: ${CPU_USAGE:-未知}"
+echo "内存: ${MEMORY:-未知}"
+echo "交换空间: ${SWAP:-未知}"
+echo "系统盘: ${DISK:-未知}"
+echo "公网IPv4: ${PUBLIC_IPV4:-未检测到}"
+echo "公网IPv6: ${PUBLIC_IPV6:-未检测到}"
+echo "内网IPv4: ${PRIVATE_IPV4:-未检测到}"
+echo "内网IPv6: ${PRIVATE_IPV6:-未检测到}"
+echo "=============================="
+STATUS_EOF
+
+	chmod 644 "$VPS_STATUS_SCRIPT"
+	bash -n "$VPS_STATUS_SCRIPT"
+	echo "新版 VPS 状态摘要已安装或更新。"
+	echo "仅在 SSH 初始登录 shell 中显示一次，请新建 SSH 连接查看。"
+}
+
+remove_vps_status() {
+	rm -f "$VPS_STATUS_SCRIPT"
+	echo "新版 VPS 状态摘要已卸载。"
+}
+
+restore_default_motd() {
+	rm -f "$SUMMARY_SCRIPT" "$VPS_STATUS_SCRIPT"
 
 	if [ -f "$MOTD_BACKUP" ]; then
 		cp -p "$MOTD_BACKUP" /etc/motd
@@ -168,7 +262,7 @@ restore_default_motd() {
 	fi
 
 	rm -rf "$STATE_DIR"
-	echo "SSH 登录摘要已关闭，系统默认 MOTD 已恢复。"
+	echo "新旧 SSH 登录摘要均已关闭，系统默认 MOTD 已恢复。"
 	echo "OpenSSH 的 Last login 保持不变。"
 }
 
@@ -178,15 +272,15 @@ while true; do
 	clear
 	echo "SSH 登录摘要管理"
 	echo "------------------------"
-	echo "1. 启用或更新登录摘要"
-	echo "2. 关闭摘要并恢复系统默认 MOTD"
+	echo "1. 安装或更新 VPS 登录摘要"
+	echo "2. 关闭全部摘要并恢复系统默认 MOTD"
 	echo "0. 返回"
 	echo "------------------------"
 	read -r -p "请输入你的选择: " choice
 
 	case "$choice" in
 		1)
-			install_summary
+			install_vps_status
 			read -r -p "按回车键继续..." _
 			;;
 		2)
