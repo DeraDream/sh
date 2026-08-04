@@ -1,5 +1,5 @@
 #!/bin/bash
-sh_v="4.5.9"
+sh_v="4.5.10"
 
 
 gl_hui='\e[37m'
@@ -21118,11 +21118,13 @@ while true; do
 	echo "------------------------"
 
 	curl -s --max-time 15 ${gh_proxy}raw.githubusercontent.com/DeraDream/sh/main/kejilion_sh_log.txt | tail -n 30
-	# 使用防缓存请求读取远程版本，避免 CDN 返回旧脚本头部。
-	local version_url="${gh_proxy}raw.githubusercontent.com/DeraDream/sh/main/kejilion.sh?ts=$(date +%s)"
+	# 先获取 main 的最新提交 SHA，再读取不可变提交地址，彻底绕过 raw/main CDN 旧缓存。
+	local latest_commit=$(curl -fsSL --max-time 20 -H 'Accept: application/vnd.github+json' -H 'Cache-Control: no-cache' \
+		"https://api.github.com/repos/DeraDream/sh/commits/main" | sed -n 's/^[[:space:]]*"sha": "\([0-9a-f]\{40\}\)",/\1/p' | head -1)
+	local version_url="${gh_proxy}raw.githubusercontent.com/DeraDream/sh/${latest_commit}/kejilion.sh"
 	local sh_v_new=$(curl -fsSL --max-time 20 -H 'Cache-Control: no-cache' "$version_url" | sed -n '1,10p' | grep -o 'sh_v="[0-9.]*"' | head -1 | cut -d '"' -f 2)
 
-	if [ -z "$sh_v_new" ]; then
+	if [ -z "$latest_commit" ] || [ -z "$sh_v_new" ]; then
 		echo -e "${gl_hong}无法获取最新版本信息，请检查网络连接${gl_bai}"
 	elif [ "$sh_v" = "$sh_v_new" ]; then
 		echo -e "${gl_lv}你已经是最新版本！${gl_huang}v$sh_v${gl_bai}"
@@ -21153,9 +21155,9 @@ while true; do
 			local country=$(curl -s --max-time 5 ipinfo.io/country)
 			local download_url
 			if [ "$country" = "CN" ]; then
-				download_url="${gh_proxy}raw.githubusercontent.com/DeraDream/sh/main/cn/kejilion.sh?ts=$(date +%s)"
+				download_url="${gh_proxy}raw.githubusercontent.com/DeraDream/sh/${latest_commit}/cn/kejilion.sh"
 			else
-				download_url="${gh_proxy}raw.githubusercontent.com/DeraDream/sh/main/kejilion.sh?ts=$(date +%s)"
+				download_url="${gh_proxy}raw.githubusercontent.com/DeraDream/sh/${latest_commit}/kejilion.sh"
 			fi
 
 			# 备份当前脚本
@@ -21214,7 +21216,10 @@ while true; do
 #!/bin/bash
 set -u
 tmp=\$(mktemp /root/kejilion_tmp.XXXXXX) || exit 1
-url="${cron_proxy}raw.githubusercontent.com/DeraDream/sh/main/kejilion.sh?ts=\$RANDOM"
+commit=\$(curl -fsSL --max-time 20 -H 'Accept: application/vnd.github+json' -H 'Cache-Control: no-cache' \
+	"https://api.github.com/repos/DeraDream/sh/commits/main" | sed -n 's/^[[:space:]]*"sha": "\([0-9a-f]\{40\}\)",/\1/p' | head -1)
+[ -n "\$commit" ] || { rm -f "\$tmp"; exit 1; }
+url="${cron_proxy}raw.githubusercontent.com/DeraDream/sh/\$commit/kejilion.sh"
 if ! curl -fsSL --max-time 60 -H 'Cache-Control: no-cache' -o "\$tmp" "\$url" || \
    [ ! -s "\$tmp" ] || ! head -1 "\$tmp" | grep -q '^#!/bin/bash' || ! bash -n "\$tmp"; then
 	rm -f "\$tmp"
