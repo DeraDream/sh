@@ -1,5 +1,5 @@
 #!/bin/bash
-sh_v="4.5.8"
+sh_v="4.5.9"
 
 
 gl_hui='\e[37m'
@@ -19831,8 +19831,7 @@ linux_Settings() {
 	  echo -e "${gl_kjlan}1.   ${gl_bai}设置脚本启动快捷键                 ${gl_kjlan}2.   ${gl_bai}修改登录密码"
 	  echo -e "${gl_kjlan}3.   ${gl_bai}用户密码登录模式                   ${gl_kjlan}4.   ${gl_bai}安装Python指定版本"
 	  echo -e "${gl_kjlan}5.   ${gl_bai}开放所有端口                       ${gl_kjlan}6.   ${gl_bai}修改SSH连接端口"
-	  echo -e "${gl_kjlan}7.   ${gl_bai}优化DNS地址"
-	  echo -e "${gl_kjlan}9.   ${gl_bai}禁用ROOT账户创建新账户             ${gl_kjlan}10.  ${gl_bai}切换优先ipv4/ipv6"
+	  echo -e "${gl_kjlan}9.   ${gl_bai}禁用ROOT账户创建新账户"
 	  echo -e "${gl_kjlan}------------------------"
 	  echo -e "${gl_kjlan}11.  ${gl_bai}查看端口占用状态                   ${gl_kjlan}12.  ${gl_bai}修改虚拟内存大小"
 	  echo -e "${gl_kjlan}13.  ${gl_bai}用户管理                           ${gl_kjlan}14.  ${gl_bai}用户/密码生成器"
@@ -19850,7 +19849,7 @@ linux_Settings() {
 	  echo -e "${gl_kjlan}33.  ${gl_bai}设置系统回收站                     ${gl_kjlan}34.  ${gl_bai}系统备份与恢复"
 	  echo -e "${gl_kjlan}35.  ${gl_bai}ssh远程连接工具                    ${gl_kjlan}36.  ${gl_bai}硬盘分区管理工具"
 	  echo -e "${gl_kjlan}37.  ${gl_bai}命令行历史记录                     ${gl_kjlan}38.  ${gl_bai}rsync远程同步工具"
-	  echo -e "${gl_kjlan}39.  ${gl_bai}命令收藏夹 ${gl_huang}★${gl_bai}                       ${gl_kjlan}40.  ${gl_bai}网卡管理工具"
+	  echo -e "${gl_kjlan}39.  ${gl_bai}命令收藏夹 ${gl_huang}★${gl_bai}"
 	  echo -e "${gl_kjlan}------------------------"
 	  echo -e "${gl_kjlan}41.  ${gl_bai}系统日志管理工具 ${gl_huang}★${gl_bai}                 ${gl_kjlan}42.  ${gl_bai}系统变量管理工具"
 	  echo -e "${gl_kjlan}43.  ${gl_bai}SSH登录摘要管理 ${gl_huang}★${gl_bai}"
@@ -20031,10 +20030,6 @@ EOF
 			  ;;
 
 
-		  7)
-			set_dns_ui
-			  ;;
-
 		  9)
 			root_use
 			send_stats "新用户禁用root"
@@ -20053,54 +20048,6 @@ EOF
 
 			;;
 
-
-		  10)
-			root_use
-			send_stats "设置v4/v6优先级"
-			while true; do
-				clear
-				echo "设置v4/v6优先级"
-				echo "------------------------"
-
-
-				if grep -Eq '^\s*precedence\s+::ffff:0:0/96\s+100\s*$' /etc/gai.conf 2>/dev/null; then
-					echo -e "当前网络优先级设置: ${gl_huang}IPv4${gl_bai} 优先"
-				else
-					echo -e "当前网络优先级设置: ${gl_huang}IPv6${gl_bai} 优先"
-				fi
-
-				echo ""
-				echo "------------------------"
-				echo "1. IPv4 优先          2. IPv6 优先          3. IPv6 修复工具"
-				echo "------------------------"
-				echo "0. 返回上一级选单"
-				echo "------------------------"
-				read -e -p "选择优先的网络: " choice
-
-				case $choice in
-					1)
-						prefer_ipv4
-						;;
-					2)
-						rm -f /etc/gai.conf
-						echo "已切换为 IPv6 优先"
-						send_stats "已切换为 IPv6 优先"
-						;;
-
-					3)
-						clear
-						bash <(curl -L -s jhb.ovh/jb/v6.sh)
-						echo "该功能由jhb大神提供，感谢他！"
-						send_stats "ipv6修复"
-						;;
-
-					*)
-						break
-						;;
-
-				esac
-			done
-			;;
 
 		  11)
 			clear
@@ -20755,11 +20702,6 @@ EOF
 			  linux_fav
 			  ;;
 
-		  40)
-			  clear
-			  net_menu
-			  ;;
-
 		  41)
 			  clear
 			  log_menu
@@ -21176,8 +21118,9 @@ while true; do
 	echo "------------------------"
 
 	curl -s --max-time 15 ${gh_proxy}raw.githubusercontent.com/DeraDream/sh/main/kejilion_sh_log.txt | tail -n 30
-	# 只下载前5行获取版本号，避免下载整个脚本
-	local sh_v_new=$(curl -s --max-time 15 -r 0-200 ${gh_proxy}raw.githubusercontent.com/DeraDream/sh/main/kejilion.sh | grep -o 'sh_v="[0-9.]*"' | head -1 | cut -d '"' -f 2)
+	# 使用防缓存请求读取远程版本，避免 CDN 返回旧脚本头部。
+	local version_url="${gh_proxy}raw.githubusercontent.com/DeraDream/sh/main/kejilion.sh?ts=$(date +%s)"
+	local sh_v_new=$(curl -fsSL --max-time 20 -H 'Cache-Control: no-cache' "$version_url" | sed -n '1,10p' | grep -o 'sh_v="[0-9.]*"' | head -1 | cut -d '"' -f 2)
 
 	if [ -z "$sh_v_new" ]; then
 		echo -e "${gl_hong}无法获取最新版本信息，请检查网络连接${gl_bai}"
@@ -21210,9 +21153,9 @@ while true; do
 			local country=$(curl -s --max-time 5 ipinfo.io/country)
 			local download_url
 			if [ "$country" = "CN" ]; then
-				download_url="${gh_proxy}raw.githubusercontent.com/DeraDream/sh/main/cn/kejilion.sh"
+				download_url="${gh_proxy}raw.githubusercontent.com/DeraDream/sh/main/cn/kejilion.sh?ts=$(date +%s)"
 			else
-				download_url="${gh_proxy}raw.githubusercontent.com/DeraDream/sh/main/kejilion.sh"
+				download_url="${gh_proxy}raw.githubusercontent.com/DeraDream/sh/main/kejilion.sh?ts=$(date +%s)"
 			fi
 
 			# 备份当前脚本
@@ -21220,17 +21163,25 @@ while true; do
 
 			# 下载到临时文件，校验后再替换
 			local tmp_file=$(mktemp ~/kejilion_tmp.XXXXXX)
-			if curl -sS --max-time 60 --fail -o "$tmp_file" "$download_url" && \
+			if curl -fsSL --max-time 60 -H 'Cache-Control: no-cache' -o "$tmp_file" "$download_url" && \
 			   [ -s "$tmp_file" ] && \
-			   head -1 "$tmp_file" | grep -q '^#!/bin/bash'; then
+			   head -1 "$tmp_file" | grep -q '^#!/bin/bash' && \
+			   bash -n "$tmp_file"; then
 				chmod +x "$tmp_file"
 				mv -f "$tmp_file" ~/kejilion.sh
 				canshu_v6
 				yinsiyuanquan2
 				cp -f ~/kejilion.sh /usr/local/bin/k > /dev/null 2>&1
 				ln -sf /usr/local/bin/k /usr/bin/k > /dev/null 2>&1
-				echo -e "${gl_lv}脚本已更新到最新版本！${gl_huang}v$sh_v_new${gl_bai}"
-				send_stats "脚本已经最新$sh_v_new"
+				local installed_version=$(sed -n '1,10p' /usr/local/bin/k | grep -o 'sh_v="[0-9.]*"' | head -1 | cut -d '"' -f 2)
+				if [ -z "$installed_version" ] || [ "$installed_version" != "$sh_v_new" ]; then
+					echo -e "${gl_hong}更新后的版本校验失败，正在恢复旧版本。${gl_bai}"
+					[ -f ~/kejilion.sh.bak ] && mv -f ~/kejilion.sh.bak ~/kejilion.sh
+					cp -f ~/kejilion.sh /usr/local/bin/k > /dev/null 2>&1
+					continue
+				fi
+				echo -e "${gl_lv}脚本已更新到最新版本！${gl_huang}v$installed_version${gl_bai}"
+				send_stats "脚本已经最新$installed_version"
 			else
 				rm -f "$tmp_file"
 				# 恢复备份
@@ -21240,9 +21191,7 @@ while true; do
 				echo -e "${gl_hong}更新失败！下载出错或文件校验不通过，已恢复原版本${gl_bai}"
 				send_stats "脚本更新失败"
 			fi
-			break_end
-			~/kejilion.sh
-			exit
+			exec bash /usr/local/bin/k
 			;;
 		2)
 			clear
@@ -21260,21 +21209,32 @@ while true; do
 				cron_sed_cmd=""
 			fi
 
-			# 构建健壮的自动更新命令：下载到临时文件 → 校验 → 备份 → 替换 → 恢复本地设置 → 部署
-			SH_Update_task="cd ~ && tmp=\$(mktemp ~/kejilion_tmp.XXXXXX) && curl -sS --max-time 60 --fail -o \"\$tmp\" ${cron_proxy}raw.githubusercontent.com/DeraDream/sh/main/kejilion.sh && [ -s \"\$tmp\" ] && head -1 \"\$tmp\" | grep -q '^#!/bin/bash' && cp -f ~/kejilion.sh ~/kejilion.sh.bak 2>/dev/null && chmod +x \"\$tmp\" && mv -f \"\$tmp\" ~/kejilion.sh"
-			# 追加设置恢复
-			if [ -n "$cron_sed_cmd" ]; then
-				SH_Update_task="$SH_Update_task && $cron_sed_cmd"
-			fi
-			SH_Update_task="$SH_Update_task && grep -q 'ENABLE_STATS=\"false\"' ~/kejilion.sh.bak 2>/dev/null && sed -i 's/ENABLE_STATS=\"true\"/ENABLE_STATS=\"false\"/' ~/kejilion.sh"
-			# 部署到 /usr/local/bin/k 和 /usr/bin/k
-			SH_Update_task="$SH_Update_task; cp -f ~/kejilion.sh /usr/local/bin/k 2>/dev/null; ln -sf /usr/local/bin/k /usr/bin/k 2>/dev/null"
-			# 下载失败时清理临时文件
-			SH_Update_task="$SH_Update_task || rm -f \"\$tmp\" 2>/dev/null"
+			# 使用独立更新器，避免 cron 单行命令的引号、缓存和条件链问题。
+			cat > /usr/local/bin/kejilion.sh-auto-update <<EOF
+#!/bin/bash
+set -u
+tmp=\$(mktemp /root/kejilion_tmp.XXXXXX) || exit 1
+url="${cron_proxy}raw.githubusercontent.com/DeraDream/sh/main/kejilion.sh?ts=\$RANDOM"
+if ! curl -fsSL --max-time 60 -H 'Cache-Control: no-cache' -o "\$tmp" "\$url" || \
+   [ ! -s "\$tmp" ] || ! head -1 "\$tmp" | grep -q '^#!/bin/bash' || ! bash -n "\$tmp"; then
+	rm -f "\$tmp"
+	exit 1
+fi
+cp -f /root/kejilion.sh /root/kejilion.sh.bak 2>/dev/null || true
+chmod +x "\$tmp"
+mv -f "\$tmp" /root/kejilion.sh
+${cron_sed_cmd}
+if grep -q 'ENABLE_STATS="false"' /root/kejilion.sh.bak 2>/dev/null; then
+	sed -i 's/ENABLE_STATS="true"/ENABLE_STATS="false"/' /root/kejilion.sh
+fi
+cp -f /root/kejilion.sh /usr/local/bin/k
+ln -sf /usr/local/bin/k /usr/bin/k
+EOF
+			chmod 700 /usr/local/bin/kejilion.sh-auto-update
 
 			check_crontab_installed
 			(crontab -l | grep -v "kejilion.sh") | crontab -
-			(crontab -l 2>/dev/null; echo "$(shuf -i 0-59 -n 1) 2 * * * bash -c '$SH_Update_task'") | crontab -
+			(crontab -l 2>/dev/null; echo "$(shuf -i 0-59 -n 1) 2 * * * /usr/local/bin/kejilion.sh-auto-update") | crontab -
 			echo -e "${gl_lv}自动更新已开启，每天凌晨2点脚本会自动更新！${gl_bai}"
 			send_stats "开启脚本自动更新"
 			break_end
@@ -21282,6 +21242,7 @@ while true; do
 		3)
 			clear
 			(crontab -l | grep -v "kejilion.sh") | crontab -
+			rm -f /usr/local/bin/kejilion.sh-auto-update
 			echo -e "${gl_lv}自动更新已关闭${gl_bai}"
 			send_stats "关闭脚本自动更新"
 			break_end
@@ -21482,78 +21443,116 @@ reinstall_os_menu() {
 		break_end
 	done
 }
-
-run_vpso_feature() {
+run_dmitbox_feature() {
 	root_use
 	local feature_name="$1"
-	local vpso_url="https://raw.githubusercontent.com/DeraDream/sh/main/vendor/vps-optimize.sh"
-	local vpso_tmp_dir vpso_script vpso_checksum vpso_runtime
-	vpso_tmp_dir=$(mktemp -d /tmp/kejilion-vpso.XXXXXX) || {
-		echo "无法创建临时目录。"
-		return 1
-	}
-	vpso_script="$vpso_tmp_dir/vps.sh"
-	vpso_checksum="$vpso_tmp_dir/vps.sh.sha256"
-	vpso_runtime="$vpso_tmp_dir/vps-runtime.sh"
-
-	if command -v curl >/dev/null 2>&1; then
-		curl -fsSL --connect-timeout 10 --max-time 120 --retry 2 "$vpso_url" -o "$vpso_script" && \
-		curl -fsSL --connect-timeout 10 --max-time 30 --retry 2 "${vpso_url}.sha256" -o "$vpso_checksum"
-	elif command -v wget >/dev/null 2>&1; then
-		wget -q --timeout=20 --tries=3 -O "$vpso_script" "$vpso_url" && \
-		wget -q --timeout=20 --tries=3 -O "$vpso_checksum" "${vpso_url}.sha256"
-	else
-		install curl
-		curl -fsSL --connect-timeout 10 --max-time 120 --retry 2 "$vpso_url" -o "$vpso_script" && \
-		curl -fsSL --connect-timeout 10 --max-time 30 --retry 2 "${vpso_url}.sha256" -o "$vpso_checksum"
-	fi
-	if [ ! -s "$vpso_script" ] || [ ! -s "$vpso_checksum" ]; then
-		echo "VPS-Optimize 官方脚本或校验文件下载失败。"
-		rm -rf "$vpso_tmp_dir"
+	local dmitbox_url="https://box.dmitstock.com"
+	local dmitbox_sha256="32faefa619168d536e85bf6a0024a516255fc4d487bcd7468d0d3120f2e2dc34"
+	local dmitbox_tmp dmitbox_runtime actual_sha256
+	dmitbox_tmp=$(mktemp /tmp/kejilion-dmitbox.XXXXXX.sh) || return 1
+	dmitbox_runtime="${dmitbox_tmp}.runtime"
+	if ! curl -fsSL --connect-timeout 10 --max-time 120 --retry 2 "$dmitbox_url" -o "$dmitbox_tmp"; then
+		echo "网络工具下载失败。"
+		rm -f "$dmitbox_tmp" "$dmitbox_runtime"
 		return 1
 	fi
-
 	if command -v sha256sum >/dev/null 2>&1; then
-		(cd "$vpso_tmp_dir" && sha256sum -c vps.sh.sha256 >/dev/null 2>&1) || {
-			echo "VPS-Optimize SHA-256 校验失败，已拒绝执行。"
-			rm -rf "$vpso_tmp_dir"
-			return 1
-		}
+		actual_sha256=$(sha256sum "$dmitbox_tmp" | awk '{print $1}')
 	elif command -v shasum >/dev/null 2>&1; then
-		local expected_checksum actual_checksum
-		expected_checksum=$(awk 'NR == 1 {print $1}' "$vpso_checksum")
-		actual_checksum=$(shasum -a 256 "$vpso_script" | awk '{print $1}')
-		if [ -z "$expected_checksum" ] || [ "$expected_checksum" != "$actual_checksum" ]; then
-			echo "VPS-Optimize SHA-256 校验失败，已拒绝执行。"
-			rm -rf "$vpso_tmp_dir"
-			return 1
-		fi
+		actual_sha256=$(shasum -a 256 "$dmitbox_tmp" | awk '{print $1}')
 	else
-		echo "系统缺少 SHA-256 校验工具，已拒绝执行远程脚本。"
-		rm -rf "$vpso_tmp_dir"
+		echo "系统缺少 SHA-256 校验工具，已拒绝执行。"
+		rm -f "$dmitbox_tmp" "$dmitbox_runtime"
 		return 1
 	fi
-
-	sed '/^main "\$@"$/d' "$vpso_script" > "$vpso_runtime"
-	if ! bash -n "$vpso_runtime"; then
-		echo "VPS-Optimize 脚本语法检查失败，已拒绝执行。"
-		rm -rf "$vpso_tmp_dir"
+	if [ "$actual_sha256" != "$dmitbox_sha256" ]; then
+		echo "网络工具版本已变化或校验失败，已拒绝执行。"
+		echo "请等待科技lion脚本更新安全校验值。"
+		rm -f "$dmitbox_tmp" "$dmitbox_runtime"
+		return 1
+	fi
+	sed '/^main "\$@"$/d' "$dmitbox_tmp" > "$dmitbox_runtime"
+	if ! bash -n "$dmitbox_runtime"; then
+		echo "网络工具语法检查失败，已拒绝执行。"
+		rm -f "$dmitbox_tmp" "$dmitbox_runtime"
 		return 1
 	fi
 	(
-		source "$vpso_runtime"
-		print_breadcrumb() { echo -e "${CYAN}科技lion > $*${PLAIN}"; }
-		ensure_runtime_root
+		source "$dmitbox_runtime"
 		if declare -F "$feature_name" >/dev/null 2>&1; then
 			"$feature_name"
 		else
-			echo "上游功能入口不存在：$feature_name"
+			echo "网络工具入口不存在：$feature_name"
 			return 1
 		fi
 	)
-	local vpso_result=$?
-	rm -rf "$vpso_tmp_dir"
-	return "$vpso_result"
+	local feature_result=$?
+	rm -f "$dmitbox_tmp" "$dmitbox_runtime"
+	return "$feature_result"
+}
+
+linux_warp() {
+	clear
+	send_stats "warp管理"
+	install wget
+	wget -N https://gitlab.com/fscarmen/warp/-/raw/main/menu.sh
+	bash menu.sh [option] [lisence/url/token]
+}
+
+linux_network() {
+	while true; do
+		clear
+		echo -e "${gl_kjlan}科技lion > 网络管理${gl_bai}"
+		echo "------------------------------------------------"
+		echo "1.  网络体检（只看状态）"
+		echo "2.  体检 + 自动修复（重拉IPv6/刷新DNS）"
+		echo "3.  开启 IPv6（重拉地址/路由）"
+		echo "4.  关闭 IPv6（系统级禁用）"
+		echo "5.  DNS 切换（CF/Google/Quad9）"
+		echo "6.  DNS 恢复（回到备份）"
+		echo "7.  MTU 工具（探测/设置/持久化）"
+		echo "8.  IPv4 优先（解析优先）"
+		echo "9.  IPv6 优先（恢复默认）"
+		echo "10. 恢复 IPv4/IPv6 优先级（用备份还原）"
+		echo "11. IPv6 /64 工具（地址池/随机出网）"
+		echo "------------------------------------------------"
+		echo "12. TCP 通用调优（BBR+FQ）"
+		echo "13. 恢复 Linux 默认 TCP（CUBIC）"
+		echo "14. 恢复 DMIT 默认 TCP"
+		echo "15. BBR 支持性检测"
+		echo "16. 安装 BBRv3（XanMod内核，需要重启）"
+		echo "------------------------------------------------"
+		echo "20. BBR 管理（原菜单）"
+		echo "21. WARP 管理（原菜单）"
+		echo "22. 网卡管理"
+		echo "------------------------------------------------"
+		echo "0.  返回主菜单"
+		read -e -p "请输入你的选择: " network_choice
+		case "$network_choice" in
+			1) run_dmitbox_feature health_check_only ;;
+			2) run_dmitbox_feature health_check_autofix ;;
+			3) run_dmitbox_feature ipv6_enable ;;
+			4) run_dmitbox_feature ipv6_disable ;;
+			5) run_dmitbox_feature dns_switch_menu ;;
+			6) run_dmitbox_feature dns_restore ;;
+			7) run_dmitbox_feature mtu_menu ;;
+			8) run_dmitbox_feature prefer_ipv4 ;;
+			9) run_dmitbox_feature prefer_ipv6 ;;
+			10) run_dmitbox_feature restore_gai_default ;;
+			11) run_dmitbox_feature ipv6_tools_menu ;;
+			12) run_dmitbox_feature tcp_tune_apply ;;
+			13) run_dmitbox_feature tcp_restore_default ;;
+			14) run_dmitbox_feature tcp_restore_dmit_default ;;
+			15) run_dmitbox_feature bbr_check ;;
+			16) run_dmitbox_feature bbrv3_install_xanmod ;;
+			20) linux_bbr ;;
+			21) linux_warp ;;
+			22) net_menu ;;
+			0) return ;;
+			*) echo "无效的输入!" ;;
+		esac
+		break_end
+	done
 }
 
 system_management_menu() {
@@ -21598,7 +21597,7 @@ uninstall_kejilion_script() {
 	fi
 	(crontab -l 2>/dev/null | grep -v "kejilion.sh") | crontab - 2>/dev/null || true
 	find /usr/local/bin /usr/bin -maxdepth 1 -type l -lname "/usr/local/bin/k" -delete 2>/dev/null
-	rm -f /usr/local/bin/k /usr/bin/k
+	rm -f /usr/local/bin/k /usr/bin/k /usr/local/bin/kejilion.sh-auto-update
 	rm -f "$HOME/kejilion.sh" "$HOME/kejilion.sh.bak" "$HOME"/kejilion_tmp.*
 	echo "脚本已彻底卸载。"
 	exit 0
@@ -21616,16 +21615,11 @@ echo -e "科技lion脚本工具箱 v$sh_v"
 echo -e "命令行输入${gl_huang}k${gl_kjlan}可快速启动脚本${gl_bai}"
 echo -e "${gl_kjlan}------------------------${gl_bai}"
 echo -e "${gl_kjlan}1.   ${gl_bai}系统管理 ${gl_huang}(信息/更新/清理/工具/重装)${gl_bai}"
+echo -e "${gl_kjlan}2.   ${gl_bai}网络管理 ${gl_huang}(体检/IPv6/DNS/MTU/BBR/WARP)${gl_bai}"
 echo -e "${gl_kjlan}------------------------${gl_bai}"
-echo -e "${gl_kjlan}2.   ${gl_bai}BBR管理"
 echo -e "${gl_kjlan}3.   ${gl_bai}Docker管理"
-echo -e "${gl_kjlan}4.   ${gl_bai}反代（Caddy/Nginx） ${gl_huang}(网站/面板反代)${gl_bai}"
-echo -e "${gl_kjlan}5.   ${gl_bai}WARP管理"
-echo -e "${gl_kjlan}6.   ${gl_bai}SSH安全中心 ${gl_huang}(端口/公钥/密钥登录)${gl_bai}"
-echo -e "${gl_kjlan}7.   ${gl_bai}Fail2ban防爆破 ${gl_huang}(自动封禁爆破IP)${gl_bai}"
-echo -e "${gl_kjlan}8.   ${gl_bai}防火墙规则管理 ${gl_huang}(放行/删除/查看/限制)${gl_bai}"
-echo -e "${gl_kjlan}10.  ${gl_bai}测试脚本合集"
-echo -e "${gl_kjlan}13.  ${gl_bai}系统工具"
+echo -e "${gl_kjlan}4.   ${gl_bai}测试脚本合集"
+echo -e "${gl_kjlan}5.   ${gl_bai}系统工具"
 echo -e "${gl_kjlan}------------------------${gl_bai}"
 echo -e "${gl_kjlan}00.  ${gl_bai}脚本更新"
 echo -e "${gl_kjlan}01.  ${gl_bai}卸载脚本"
@@ -21636,17 +21630,10 @@ read -e -p "请输入你的选择: " choice
 
 case $choice in
   1) system_management_menu ;;
-	2) linux_bbr ;;
+	2) linux_network ;;
 	3) linux_docker ;;
-	4) run_vpso_feature func_caddy_reverse_proxy_menu ;;
-	5) clear ; send_stats "warp管理" ; install wget
-	wget -N https://gitlab.com/fscarmen/warp/-/raw/main/menu.sh ; bash menu.sh [option] [lisence/url/token]
-	;;
-	6) run_vpso_feature func_ssh_security_menu ;;
-	7) run_vpso_feature func_fail2ban ;;
-	8) run_vpso_feature func_firewall_manage ;;
-	10) linux_test ;;
-  13) linux_Settings ;;
+	4) linux_test ;;
+	5) linux_Settings ;;
   00) kejilion_update ;;
   01) uninstall_kejilion_script ;;
   0) clear ; exit ;;
