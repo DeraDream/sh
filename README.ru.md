@@ -85,7 +85,7 @@ Shell Script Tool от TechLion — это комплексный набор и�
 
 ## 🚀 Установка в один клик
 ```bash
-bash <(curl -sL kejilion.sh) ru
+bash <(curl -sL https://lion.yforward7.com/) ru
 ```
 <br><br>
 

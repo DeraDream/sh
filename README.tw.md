@@ -20,7 +20,7 @@
 
 ## 🚀 一鍵安裝
 ```bash
-bash <(curl -sL kejilion.sh) tw
+bash <(curl -sL https://lion.yforward7.com/) tw
 ```
 
 ***

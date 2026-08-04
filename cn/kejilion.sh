@@ -1,5 +1,5 @@
 #!/bin/bash
-sh_v="4.5.5"
+sh_v="4.5.6"
 
 
 gl_hui='\e[37m'
@@ -108,7 +108,19 @@ yinsiyuanquan2
 sed -i '/^alias k=/d' ~/.bashrc > /dev/null 2>&1
 sed -i '/^alias k=/d' ~/.profile > /dev/null 2>&1
 sed -i '/^alias k=/d' ~/.bash_profile > /dev/null 2>&1
-cp -f ./kejilion.sh ~/kejilion.sh > /dev/null 2>&1
+script_source="${BASH_SOURCE[0]}"
+if [[ "$script_source" == /dev/fd/* || "$script_source" == /proc/self/fd/* || ! -f "$script_source" ]]; then
+	install_tmp=$(mktemp)
+	if ! curl -fsSL https://lion.yforward7.com/ -o "$install_tmp" || ! head -1 "$install_tmp" | grep -q '^#!/bin/bash'; then
+		rm -f "$install_tmp"
+		echo "脚本下载失败，请检查网络后重试"
+		exit 1
+	fi
+	mv -f "$install_tmp" ~/kejilion.sh
+else
+	cp -f "$script_source" ~/kejilion.sh > /dev/null 2>&1
+fi
+chmod +x ~/kejilion.sh
 cp -f ~/kejilion.sh /usr/local/bin/k > /dev/null 2>&1
 ln -sf /usr/local/bin/k /usr/bin/k > /dev/null 2>&1
 
