@@ -149,4 +149,4 @@ Feel free to support us with USTD TRC20 donations.
 <br><br>
 
 ## ⭐ Star History
-[![Star History Chart](https://api.star-history.com/svg?repos=kejilion/sh&type=Date)](https://star-history.com/#kejilion/sh&Date)
+[![Star History Chart](https://api.star-history.com/svg?repos=DeraDream/sh&type=Date)](https://star-history.com/#DeraDream/sh&Date)
