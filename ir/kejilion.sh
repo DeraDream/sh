@@ -1,5 +1,5 @@
 #!/bin/bash
-sh_v="4.5.6"
+sh_v="4.5.7"
 
 
 gl_hui='\e[37m'
@@ -13,7 +13,6 @@ gl_kjlan='\033[96m'
 
 
 canshu="default"
-permission_granted="false"
 ENABLE_STATS="true"
 
 
@@ -49,11 +48,6 @@ canshu_v6() {
 }
 
 
-CheckFirstRun_true() {
-	if grep -q '^permission_granted="true"' /usr/local/bin/k > /dev/null 2>&1; then
-		sed -i 's/^permission_granted="false"/permission_granted="true"/' ~/kejilion.sh
-	fi
-}
 
 
 
@@ -93,7 +87,6 @@ fi
 
 
 canshu_v6
-CheckFirstRun_true
 yinsiyuanquan2
 
 
@@ -117,34 +110,6 @@ cp -f ~/kejilion.sh /usr/local/bin/k > /dev/null 2>&1
 
 
 
-CheckFirstRun_false() {
-	if grep -q '^permission_granted="false"' /usr/local/bin/k > /dev/null 2>&1; then
-		UserLicenseAgreement
-	fi
-}
-
-# کاربر را وادار به موافقت با شرایط کنید
-UserLicenseAgreement() {
-	clear
-	echo -e "${gl_kjlan}به جعبه ابزار Tech Lion Script خوش آمدید${gl_bai}"
-	echo "برای اولین بار با استفاده از اسکریپت ، لطفاً توافق نامه مجوز کاربر را بخوانید و موافقت کنید."
-	echo "توافق نامه مجوز کاربر: https://blog.kejilion.pro/user-license-agreement/"
-	echo -e "----------------------"
-	read -r -p "آیا با اصطلاحات فوق موافق هستید؟ (y/n):" user_input
-
-
-	if [ "$user_input" = "y" ] || [ "$user_input" = "Y" ]; then
-		send_stats "رضایت مجوز"
-		sed -i 's/^permission_granted="false"/permission_granted="true"/' ~/kejilion.sh
-		sed -i 's/^permission_granted="false"/permission_granted="true"/' /usr/local/bin/k
-	else
-		send_stats "رد مجوز"
-		clear
-		exit
-	fi
-}
-
-CheckFirstRun_false
 
 
 
@@ -10196,7 +10161,7 @@ linux_Settings() {
 	  echo -e "${gl_kjlan}41.  ${gl_bai}صفحه پیام${gl_kjlan}66.  ${gl_bai}بهینه سازی سیستم یک مرحله ای${gl_huang}★${gl_bai}"
 	  echo -e "${gl_kjlan}43.  ${gl_bai}SSH login summary management ${gl_huang}★${gl_bai}"
 	  echo -e "${gl_kjlan}99.  ${gl_bai}سرور را مجدداً راه اندازی کنید${gl_kjlan}100. ${gl_bai}حریم خصوصی و امنیت"
-	  echo -e "${gl_kjlan}101. ${gl_bai}استفاده پیشرفته از فرمان k${gl_huang}★${gl_bai}                    ${gl_kjlan}102. ${gl_bai}حذف اسکریپت شیر ​​فناوری"
+	  echo -e "${gl_kjlan}101. ${gl_bai}استفاده پیشرفته از فرمان k${gl_huang}★${gl_bai}"
 	  echo -e "${gl_kjlan}------------------------"
 	  echo -e "${gl_kjlan}0.   ${gl_bai}بازگشت به منوی اصلی"
 	  echo -e "${gl_kjlan}------------------------${gl_bai}"
@@ -11347,33 +11312,6 @@ EOF
 			  k_info
 			  ;;
 
-		  102)
-			  clear
-			  send_stats "حذف اسکریپت شیر ​​فناوری"
-			  echo "حذف اسکریپت شیر ​​فناوری"
-			  echo "------------------------------------------------"
-			  echo "اسکریپت kejilion را کاملاً حذف کرده و بر عملکردهای دیگر شما تأثیر نمی گذارد"
-			  read -e -p "آیا مطمئناً ادامه خواهید داد؟ (y/n):" choice
-
-			  case "$choice" in
-				[Yy])
-				  clear
-				  (crontab -l | grep -v "kejilion.sh") | crontab -
-				  rm -f /usr/local/bin/k
-				  rm ~/kejilion.sh
-				  echo "فیلمنامه حذف شده است ، خداحافظ!"
-				  break_end
-				  clear
-				  exit
-				  ;;
-				[Nn])
-				  echo "لغو شده"
-				  ;;
-				*)
-				  echo "انتخاب نامعتبر ، لطفاً Y یا N را وارد کنید."
-				  ;;
-			  esac
-			  ;;
 
 		  0)
 			  kejilion
@@ -11655,7 +11593,6 @@ while true; do
 				curl -sS -O ${gh_proxy}raw.githubusercontent.com/DeraDream/sh/main/kejilion.sh && chmod +x kejilion.sh
 			fi
 			canshu_v6
-			CheckFirstRun_true
 			yinsiyuanquan2
 			cp -f ~/kejilion.sh /usr/local/bin/k > /dev/null 2>&1
 			echo -e "${gl_lv}اسکریپت به آخرین نسخه به روز شده است!${gl_huang}v$sh_v_new${gl_bai}"
@@ -11702,6 +11639,29 @@ done
 
 
 
+uninstall_kejilion_script() {
+	clear
+	echo "حذف اسکریپت"
+	echo "------------------------------------------------"
+	read -e -p "اسکریپت، پشتیبان‌ها، وظایف بروزرسانی و میانبرها حذف می‌شوند. ادامه می‌دهید؟ [y/N]: " uninstall_confirm
+	if [[ ! "$uninstall_confirm" =~ ^[Yy]$ ]]; then
+		echo "حذف لغو شد."
+		return
+	fi
+	read -e -p "دوباره تأیید کنید: حذف کامل انجام شود؟ [y/N]: " uninstall_confirm_again
+	if [[ ! "$uninstall_confirm_again" =~ ^[Yy]$ ]]; then
+		echo "حذف لغو شد."
+		return
+	fi
+	(crontab -l 2>/dev/null | grep -v "kejilion.sh") | crontab - 2>/dev/null || true
+	find /usr/local/bin /usr/bin -maxdepth 1 -type l -lname "/usr/local/bin/k" -delete 2>/dev/null
+	rm -f /usr/local/bin/k /usr/bin/k
+	rm -f "$HOME/kejilion.sh" "$HOME/kejilion.sh.bak" "$HOME"/kejilion_tmp.*
+	echo "اسکریپت کاملاً حذف شد."
+	exit 0
+}
+
+
 kejilion_sh() {
 while true; do
 clear
@@ -11725,6 +11685,7 @@ echo -e "${gl_kjlan}12.  ${gl_bai}فضای کاری من"
 echo -e "${gl_kjlan}13.  ${gl_bai}ابزار سیستم"
 echo -e "${gl_kjlan}------------------------${gl_bai}"
 echo -e "${gl_kjlan}00.  ${gl_bai}به روزرسانی اسکریپت"
+echo -e "${gl_kjlan}01.  ${gl_bai}حذف اسکریپت"
 echo -e "${gl_kjlan}------------------------${gl_bai}"
 echo -e "${gl_kjlan}0.   ${gl_bai}اسکریپت خروجی"
 echo -e "${gl_kjlan}------------------------${gl_bai}"
@@ -11745,6 +11706,7 @@ case $choice in
   12) linux_work ;;
   13) linux_Settings ;;
   00) kejilion_update ;;
+  01) uninstall_kejilion_script ;;
   0) clear ; exit ;;
   *) echo "ورودی نامعتبر!" ;;
 esac

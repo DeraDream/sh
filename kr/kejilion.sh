@@ -1,5 +1,5 @@
 #!/bin/bash
-sh_v="4.5.6"
+sh_v="4.5.7"
 
 
 gl_hui='\e[37m'
@@ -13,7 +13,6 @@ gl_kjlan='\033[96m'
 
 
 canshu="default"
-permission_granted="false"
 ENABLE_STATS="true"
 
 
@@ -53,13 +52,6 @@ canshu_v6() {
 }
 
 
-CheckFirstRun_true() {
-	if grep -q '^permission_granted="true"' /usr/local/bin/k > /dev/null 2>&1; then
-		sed -i 's/^permission_granted="false"/permission_granted="true"/' ~/kejilion.sh
-	elif grep -q '^permission_granted="true"' ~/kejilion.sh.bak > /dev/null 2>&1; then
-		sed -i 's/^permission_granted="false"/permission_granted="true"/' ~/kejilion.sh
-	fi
-}
 
 
 
@@ -101,7 +93,6 @@ fi
 
 
 canshu_v6
-CheckFirstRun_true
 yinsiyuanquan2
 
 
@@ -126,34 +117,6 @@ ln -sf /usr/local/bin/k /usr/bin/k > /dev/null 2>&1
 
 
 
-CheckFirstRun_false() {
-	if grep -q '^permission_granted="false"' /usr/local/bin/k > /dev/null 2>&1; then
-		UserLicenseAgreement
-	fi
-}
-
-# 사용자에게 약관에 동의하라는 메시지를 표시합니다.
-UserLicenseAgreement() {
-	clear
-	echo -e "${gl_kjlan}기술 사자 스크립트 도구 상자에 오신 것을 환영합니다${gl_bai}"
-	echo "스크립트를 처음 사용하는 경우 사용자 라이센스 계약을 읽고 동의하십시오."
-	echo "사용자 라이센스 계약: https://blog.kejilion.pro/user-license-agreement/"
-	echo -e "----------------------"
-	read -e -p "위의 약관에 동의하십니까? (예/아니요):" user_input
-
-
-	if [ "$user_input" = "y" ] || [ "$user_input" = "Y" ]; then
-		send_stats "라이센스 계약"
-		sed -i 's/^permission_granted="false"/permission_granted="true"/' ~/kejilion.sh
-		sed -i 's/^permission_granted="false"/permission_granted="true"/' /usr/local/bin/k
-	else
-		send_stats "허가가 거부되었습니다"
-		clear
-		exit
-	fi
-}
-
-CheckFirstRun_false
 
 
 
@@ -20190,7 +20153,7 @@ linux_Settings() {
 	  echo -e "${gl_kjlan}------------------------"
 	  echo -e "${gl_kjlan}61.  ${gl_bai}메시지 보드${gl_kjlan}66.  ${gl_bai}원스톱 시스템 튜닝${gl_huang}★${gl_bai}"
 	  echo -e "${gl_kjlan}99.  ${gl_bai}서버를 다시 시작하세요${gl_kjlan}100. ${gl_bai}개인 정보 보호 및 보안"
-	  echo -e "${gl_kjlan}101. ${gl_bai}k 명령의 고급 사용법${gl_huang}★${gl_bai}                    ${gl_kjlan}102. ${gl_bai}기술 사자 스크립트 제거"
+	  echo -e "${gl_kjlan}101. ${gl_bai}k 명령의 고급 사용법${gl_huang}★${gl_bai}"
 	  echo -e "${gl_kjlan}------------------------"
 	  echo -e "${gl_kjlan}0.   ${gl_bai}메인 메뉴로 돌아가기"
 	  echo -e "${gl_kjlan}------------------------${gl_bai}"
@@ -21264,33 +21227,6 @@ EOF
 			  k_info
 			  ;;
 
-		  102)
-			  clear
-			  send_stats "기술 사자 스크립트 제거"
-			  echo "기술 사자 스크립트 제거"
-			  echo "------------------------------------------------"
-			  echo "kejilion 스크립트는 다른 기능에 영향을 주지 않고 완전히 제거됩니다."
-			  read -e -p "계속하시겠습니까? (예/아니요):" choice
-
-			  case "$choice" in
-				[Yy])
-				  clear
-				  (crontab -l | grep -v "kejilion.sh") | crontab -
-				  rm -f /usr/local/bin/k
-				  rm ~/kejilion.sh
-				  echo "스크립트가 제거되었습니다. 안녕!"
-				  break_end
-				  clear
-				  exit
-				  ;;
-				[Nn])
-				  echo "취소"
-				  ;;
-				*)
-				  echo "선택이 잘못되었습니다. Y 또는 N을 입력하세요."
-				  ;;
-			  esac
-			  ;;
 
 		  0)
 			  kejilion
@@ -21590,7 +21526,6 @@ while true; do
 				chmod +x "$tmp_file"
 				mv -f "$tmp_file" ~/kejilion.sh
 				canshu_v6
-				CheckFirstRun_true
 				yinsiyuanquan2
 				cp -f ~/kejilion.sh /usr/local/bin/k > /dev/null 2>&1
 				ln -sf /usr/local/bin/k /usr/bin/k > /dev/null 2>&1
@@ -21632,7 +21567,7 @@ while true; do
 				SH_Update_task="$SH_Update_task && $cron_sed_cmd"
 			fi
 			# 이전 스크립트에서Permission_granted 및 ENABLE_STATS 설정을 복원합니다.
-			SH_Update_task="$SH_Update_task && grep -q 'permission_granted=\"true\"' ~/kejilion.sh.bak 2>/dev/null && sed -i 's/permission_granted=\"false\"/permission_granted=\"true\"/' ~/kejilion.sh; grep -q 'ENABLE_STATS=\"false\"' ~/kejilion.sh.bak 2>/dev/null && sed -i 's/ENABLE_STATS=\"true\"/ENABLE_STATS=\"false\"/' ~/kejilion.sh"
+			SH_Update_task="$SH_Update_task && grep -q 'ENABLE_STATS=\"false\"' ~/kejilion.sh.bak 2>/dev/null && sed -i 's/ENABLE_STATS=\"true\"/ENABLE_STATS=\"false\"/' ~/kejilion.sh"
 			# /usr/local/bin/k 및 /usr/bin/k에 배포
 			SH_Update_task="$SH_Update_task; cp -f ~/kejilion.sh /usr/local/bin/k 2>/dev/null; ln -sf /usr/local/bin/k /usr/bin/k 2>/dev/null"
 			# 다운로드 실패 시 임시 파일 정리
@@ -21664,6 +21599,29 @@ done
 
 
 
+uninstall_kejilion_script() {
+	clear
+	echo "스크립트 제거"
+	echo "------------------------------------------------"
+	read -e -p "스크립트, 백업, 업데이트 작업 및 바로가기를 삭제합니다. 계속할까요? [y/N]: " uninstall_confirm
+	if [[ ! "$uninstall_confirm" =~ ^[Yy]$ ]]; then
+		echo "제거를 취소했습니다."
+		return
+	fi
+	read -e -p "다시 확인합니다. 완전히 제거할까요? [y/N]: " uninstall_confirm_again
+	if [[ ! "$uninstall_confirm_again" =~ ^[Yy]$ ]]; then
+		echo "제거를 취소했습니다."
+		return
+	fi
+	(crontab -l 2>/dev/null | grep -v "kejilion.sh") | crontab - 2>/dev/null || true
+	find /usr/local/bin /usr/bin -maxdepth 1 -type l -lname "/usr/local/bin/k" -delete 2>/dev/null
+	rm -f /usr/local/bin/k /usr/bin/k
+	rm -f "$HOME/kejilion.sh" "$HOME/kejilion.sh.bak" "$HOME"/kejilion_tmp.*
+	echo "스크립트를 완전히 제거했습니다."
+	exit 0
+}
+
+
 kejilion_sh() {
 while true; do
 clear
@@ -21687,6 +21645,7 @@ echo -e "${gl_kjlan}12.  ${gl_bai}백엔드 작업공간"
 echo -e "${gl_kjlan}13.  ${gl_bai}시스템 도구"
 echo -e "${gl_kjlan}------------------------${gl_bai}"
 echo -e "${gl_kjlan}00.  ${gl_bai}스크립트 업데이트"
+echo -e "${gl_kjlan}01.  ${gl_bai}스크립트 제거"
 echo -e "${gl_kjlan}------------------------${gl_bai}"
 echo -e "${gl_kjlan}0.   ${gl_bai}스크립트 종료"
 echo -e "${gl_kjlan}------------------------${gl_bai}"
@@ -21707,6 +21666,7 @@ case $choice in
   12) linux_work ;;
   13) linux_Settings ;;
   00) kejilion_update ;;
+  01) uninstall_kejilion_script ;;
   0) clear ; exit ;;
   *) echo "입력이 잘못되었습니다!" ;;
 esac

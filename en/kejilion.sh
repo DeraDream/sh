@@ -1,5 +1,5 @@
 #!/bin/bash
-sh_v="4.5.6"
+sh_v="4.5.7"
 
 
 gl_hui='\e[37m'
@@ -13,7 +13,6 @@ gl_kjlan='\033[96m'
 
 
 canshu="default"
-permission_granted="false"
 ENABLE_STATS="true"
 
 
@@ -53,13 +52,6 @@ canshu_v6() {
 }
 
 
-CheckFirstRun_true() {
-	if grep -q '^permission_granted="true"' /usr/local/bin/k > /dev/null 2>&1; then
-		sed -i 's/^permission_granted="false"/permission_granted="true"/' ~/kejilion.sh
-	elif grep -q '^permission_granted="true"' ~/kejilion.sh.bak > /dev/null 2>&1; then
-		sed -i 's/^permission_granted="false"/permission_granted="true"/' ~/kejilion.sh
-	fi
-}
 
 
 
@@ -101,7 +93,6 @@ fi
 
 
 canshu_v6
-CheckFirstRun_true
 yinsiyuanquan2
 
 
@@ -126,34 +117,6 @@ ln -sf /usr/local/bin/k /usr/bin/k > /dev/null 2>&1
 
 
 
-CheckFirstRun_false() {
-	if grep -q '^permission_granted="false"' /usr/local/bin/k > /dev/null 2>&1; then
-		UserLicenseAgreement
-	fi
-}
-
-# Prompt user to agree to terms
-UserLicenseAgreement() {
-	clear
-	echo -e "${gl_kjlan}Welcome to the technology lion script toolbox${gl_bai}"
-	echo "When using the script for the first time, please read and agree to the User License Agreement."
-	echo "User License Agreement: https://blog.kejilion.pro/user-license-agreement/"
-	echo -e "----------------------"
-	read -e -p "Do you agree to the above terms? (y/n):" user_input
-
-
-	if [ "$user_input" = "y" ] || [ "$user_input" = "Y" ]; then
-		send_stats "License agreement"
-		sed -i 's/^permission_granted="false"/permission_granted="true"/' ~/kejilion.sh
-		sed -i 's/^permission_granted="false"/permission_granted="true"/' /usr/local/bin/k
-	else
-		send_stats "permission denied"
-		clear
-		exit
-	fi
-}
-
-CheckFirstRun_false
 
 
 
@@ -20190,7 +20153,7 @@ linux_Settings() {
 	  echo -e "${gl_kjlan}------------------------"
 	  echo -e "${gl_kjlan}61.  ${gl_bai}message board${gl_kjlan}66.  ${gl_bai}One-stop system tuning${gl_huang}★${gl_bai}"
 	  echo -e "${gl_kjlan}99.  ${gl_bai}Restart the server${gl_kjlan}100. ${gl_bai}Privacy and security"
-	  echo -e "${gl_kjlan}101. ${gl_bai}Advanced usage of k command${gl_huang}★${gl_bai}                    ${gl_kjlan}102. ${gl_bai}Uninstall tech lion script"
+	  echo -e "${gl_kjlan}101. ${gl_bai}Advanced usage of k command${gl_huang}★${gl_bai}"
 	  echo -e "${gl_kjlan}------------------------"
 	  echo -e "${gl_kjlan}0.   ${gl_bai}Return to main menu"
 	  echo -e "${gl_kjlan}------------------------${gl_bai}"
@@ -21264,33 +21227,6 @@ EOF
 			  k_info
 			  ;;
 
-		  102)
-			  clear
-			  send_stats "Uninstall tech lion script"
-			  echo "Uninstall tech lion script"
-			  echo "------------------------------------------------"
-			  echo "The kejilion script will be completely uninstalled without affecting your other functions."
-			  read -e -p "Are you sure you want to continue? (Y/N):" choice
-
-			  case "$choice" in
-				[Yy])
-				  clear
-				  (crontab -l | grep -v "kejilion.sh") | crontab -
-				  rm -f /usr/local/bin/k
-				  rm ~/kejilion.sh
-				  echo "The script has been uninstalled, bye!"
-				  break_end
-				  clear
-				  exit
-				  ;;
-				[Nn])
-				  echo "Canceled"
-				  ;;
-				*)
-				  echo "Invalid selection, please enter Y or N."
-				  ;;
-			  esac
-			  ;;
 
 		  0)
 			  kejilion
@@ -21590,7 +21526,6 @@ while true; do
 				chmod +x "$tmp_file"
 				mv -f "$tmp_file" ~/kejilion.sh
 				canshu_v6
-				CheckFirstRun_true
 				yinsiyuanquan2
 				cp -f ~/kejilion.sh /usr/local/bin/k > /dev/null 2>&1
 				ln -sf /usr/local/bin/k /usr/bin/k > /dev/null 2>&1
@@ -21631,8 +21566,7 @@ while true; do
 			if [ -n "$cron_sed_cmd" ]; then
 				SH_Update_task="$SH_Update_task && $cron_sed_cmd"
 			fi
-			# Restore permission_granted and ENABLE_STATS settings from old script
-			SH_Update_task="$SH_Update_task && grep -q 'permission_granted=\"true\"' ~/kejilion.sh.bak 2>/dev/null && sed -i 's/permission_granted=\"false\"/permission_granted=\"true\"/' ~/kejilion.sh; grep -q 'ENABLE_STATS=\"false\"' ~/kejilion.sh.bak 2>/dev/null && sed -i 's/ENABLE_STATS=\"true\"/ENABLE_STATS=\"false\"/' ~/kejilion.sh"
+			SH_Update_task="$SH_Update_task && grep -q 'ENABLE_STATS=\"false\"' ~/kejilion.sh.bak 2>/dev/null && sed -i 's/ENABLE_STATS=\"true\"/ENABLE_STATS=\"false\"/' ~/kejilion.sh"
 			# Deploy to /usr/local/bin/k and /usr/bin/k
 			SH_Update_task="$SH_Update_task; cp -f ~/kejilion.sh /usr/local/bin/k 2>/dev/null; ln -sf /usr/local/bin/k /usr/bin/k 2>/dev/null"
 			# Clean temporary files when download fails
@@ -21664,6 +21598,29 @@ done
 
 
 
+uninstall_kejilion_script() {
+	clear
+	echo "Uninstall script"
+	echo "------------------------------------------------"
+	read -e -p "This removes script files, backups, update jobs, and shortcuts. Continue? [y/N]: " uninstall_confirm
+	if [[ ! "$uninstall_confirm" =~ ^[Yy]$ ]]; then
+		echo "Uninstall cancelled."
+		return
+	fi
+	read -e -p "Confirm again: permanently uninstall? [y/N]: " uninstall_confirm_again
+	if [[ ! "$uninstall_confirm_again" =~ ^[Yy]$ ]]; then
+		echo "Uninstall cancelled."
+		return
+	fi
+	(crontab -l 2>/dev/null | grep -v "kejilion.sh") | crontab - 2>/dev/null || true
+	find /usr/local/bin /usr/bin -maxdepth 1 -type l -lname "/usr/local/bin/k" -delete 2>/dev/null
+	rm -f /usr/local/bin/k /usr/bin/k
+	rm -f "$HOME/kejilion.sh" "$HOME/kejilion.sh.bak" "$HOME"/kejilion_tmp.*
+	echo "Script completely uninstalled."
+	exit 0
+}
+
+
 kejilion_sh() {
 while true; do
 clear
@@ -21687,6 +21644,7 @@ echo -e "${gl_kjlan}12.  ${gl_bai}Backend workspace"
 echo -e "${gl_kjlan}13.  ${gl_bai}system tools"
 echo -e "${gl_kjlan}------------------------${gl_bai}"
 echo -e "${gl_kjlan}00.  ${gl_bai}Script update"
+echo -e "${gl_kjlan}01.  ${gl_bai}Uninstall script"
 echo -e "${gl_kjlan}------------------------${gl_bai}"
 echo -e "${gl_kjlan}0.   ${gl_bai}Exit script"
 echo -e "${gl_kjlan}------------------------${gl_bai}"
@@ -21707,6 +21665,7 @@ case $choice in
   12) linux_work ;;
   13) linux_Settings ;;
   00) kejilion_update ;;
+  01) uninstall_kejilion_script ;;
   0) clear ; exit ;;
   *) echo "Invalid input!" ;;
 esac

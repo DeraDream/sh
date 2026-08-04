@@ -1,5 +1,5 @@
 #!/bin/bash
-sh_v="4.5.6"
+sh_v="4.5.7"
 
 
 gl_hui='\e[37m'
@@ -13,7 +13,6 @@ gl_kjlan='\033[96m'
 
 
 canshu="CN"
-permission_granted="false"
 ENABLE_STATS="true"
 
 
@@ -53,13 +52,6 @@ canshu_v6() {
 }
 
 
-CheckFirstRun_true() {
-	if grep -q '^permission_granted="true"' /usr/local/bin/k > /dev/null 2>&1; then
-		sed -i 's/^permission_granted="false"/permission_granted="true"/' ~/kejilion.sh
-	elif grep -q '^permission_granted="true"' ~/kejilion.sh.bak > /dev/null 2>&1; then
-		sed -i 's/^permission_granted="false"/permission_granted="true"/' ~/kejilion.sh
-	fi
-}
 
 
 
@@ -101,7 +93,6 @@ fi
 
 
 canshu_v6
-CheckFirstRun_true
 yinsiyuanquan2
 
 
@@ -126,34 +117,6 @@ ln -sf /usr/local/bin/k /usr/bin/k > /dev/null 2>&1
 
 
 
-CheckFirstRun_false() {
-	if grep -q '^permission_granted="false"' /usr/local/bin/k > /dev/null 2>&1; then
-		UserLicenseAgreement
-	fi
-}
-
-# 提示用户同意条款
-UserLicenseAgreement() {
-	clear
-	echo -e "${gl_kjlan}欢迎使用科技lion脚本工具箱${gl_bai}"
-	echo "首次使用脚本，请先阅读并同意用户许可协议。"
-	echo "用户许可协议: https://blog.kejilion.pro/user-license-agreement/"
-	echo -e "----------------------"
-	read -e -p "是否同意以上条款？(y/n): " user_input
-
-
-	if [ "$user_input" = "y" ] || [ "$user_input" = "Y" ]; then
-		send_stats "许可同意"
-		sed -i 's/^permission_granted="false"/permission_granted="true"/' ~/kejilion.sh
-		sed -i 's/^permission_granted="false"/permission_granted="true"/' /usr/local/bin/k
-	else
-		send_stats "许可拒绝"
-		clear
-		exit
-	fi
-}
-
-CheckFirstRun_false
 
 
 
@@ -7715,7 +7678,7 @@ linux_tools() {
 
 	  tools=(
 		curl wget sudo socat htop iftop unzip tar tmux ffmpeg
-		btop ranger ncdu fzf vim nano git speedtest iperf3 nexttrace mtr
+		btop ranger ncdu fzf vim nano git speedtest iperf3 nexttrace mtr caddy x-ui codex
 	  )
 
 	  if command -v apt >/dev/null 2>&1; then
@@ -7776,6 +7739,8 @@ linux_tools() {
 	  echo -e "${gl_kjlan}17.  ${gl_bai}git 版本控制系统                  ${gl_kjlan}18.  ${gl_bai}opencode AI编程助手 ${gl_huang}★${gl_bai}"
 	  echo -e "${gl_kjlan}19.  ${gl_bai}Speedtest 官方测速工具            ${gl_kjlan}20.  ${gl_bai}iperf3 网络性能测试工具"
 	  echo -e "${gl_kjlan}21.  ${gl_bai}NextTrace 路由跟踪工具            ${gl_kjlan}22.  ${gl_bai}mtr 网络诊断工具"
+	  echo -e "${gl_kjlan}23.  ${gl_bai}Caddy Web服务器                   ${gl_kjlan}24.  ${gl_bai}3x-ui 管理面板"
+	  echo -e "${gl_kjlan}25.  ${gl_bai}GPT CLI（OpenAI Codex）"
 	  echo -e "${gl_kjlan}------------------------"
 	  echo -e "${gl_kjlan}31.  ${gl_bai}全部安装 ${gl_huang}★${gl_bai}"
 	  echo -e "${gl_kjlan}33.  ${gl_bai}全部卸载"
@@ -7978,11 +7943,33 @@ linux_tools() {
 			  mtr --help
 			  send_stats "安装mtr"
 			  ;;
+			23)
+			  clear
+			  install caddy
+			  clear
+			  caddy version
+			  send_stats "安装Caddy"
+			  ;;
+			24)
+			  clear
+			  bash <(curl -Ls https://raw.githubusercontent.com/MHSanaei/3x-ui/master/install.sh)
+			  send_stats "安装3x-ui"
+			  ;;
+			25)
+			  clear
+			  apt update && apt install -y curl ca-certificates && \
+			  curl -fsSL https://deb.nodesource.com/setup_22.x | bash - && \
+			  apt install -y nodejs && \
+			  npm install -g @openai/codex@latest && \
+			  codex --version && \
+			  codex login --device-auth
+			  send_stats "安装GPT CLI"
+			  ;;
 
 		  31)
 			  clear
 			  send_stats "全部安装"
-			  install curl wget sudo socat htop iftop unzip tar tmux ffmpeg btop ranger ncdu fzf vim nano git iperf3 mtr
+			  install curl wget sudo socat htop iftop unzip tar tmux ffmpeg btop ranger ncdu fzf vim nano git iperf3 mtr caddy
 			  if command -v apt >/dev/null 2>&1; then
 				curl -s https://packagecloud.io/install/repositories/ookla/speedtest-cli/script.deb.sh | bash
 				install speedtest
@@ -7997,7 +7984,7 @@ linux_tools() {
 		  33)
 			  clear
 			  send_stats "全部卸载"
-			  remove htop iftop tmux ffmpeg btop ranger ncdu fzf vim nano git speedtest iperf3 mtr
+			  remove htop iftop tmux ffmpeg btop ranger ncdu fzf vim nano git speedtest iperf3 mtr caddy
 			  rm -f /usr/local/bin/nexttrace
 			  opencode uninstall
 			  rm -rf ~/.opencode
@@ -20159,7 +20146,7 @@ linux_Settings() {
 	  echo -e "${gl_kjlan}1.   ${gl_bai}设置脚本启动快捷键                 ${gl_kjlan}2.   ${gl_bai}修改登录密码"
 	  echo -e "${gl_kjlan}3.   ${gl_bai}用户密码登录模式                   ${gl_kjlan}4.   ${gl_bai}安装Python指定版本"
 	  echo -e "${gl_kjlan}5.   ${gl_bai}开放所有端口                       ${gl_kjlan}6.   ${gl_bai}修改SSH连接端口"
-	  echo -e "${gl_kjlan}7.   ${gl_bai}优化DNS地址                        ${gl_kjlan}8.   ${gl_bai}一键重装系统 ${gl_huang}★${gl_bai}"
+	  echo -e "${gl_kjlan}7.   ${gl_bai}优化DNS地址"
 	  echo -e "${gl_kjlan}9.   ${gl_bai}禁用ROOT账户创建新账户             ${gl_kjlan}10.  ${gl_bai}切换优先ipv4/ipv6"
 	  echo -e "${gl_kjlan}------------------------"
 	  echo -e "${gl_kjlan}11.  ${gl_bai}查看端口占用状态                   ${gl_kjlan}12.  ${gl_bai}修改虚拟内存大小"
@@ -20185,7 +20172,7 @@ linux_Settings() {
 	  echo -e "${gl_kjlan}------------------------"
 	  echo -e "${gl_kjlan}61.  ${gl_bai}留言板                             ${gl_kjlan}66.  ${gl_bai}一条龙系统调优 ${gl_huang}★${gl_bai}"
 	  echo -e "${gl_kjlan}99.  ${gl_bai}重启服务器                         ${gl_kjlan}100. ${gl_bai}隐私与安全"
-	  echo -e "${gl_kjlan}101. ${gl_bai}k命令高级用法 ${gl_huang}★${gl_bai}                    ${gl_kjlan}102. ${gl_bai}卸载科技lion脚本"
+	  echo -e "${gl_kjlan}101. ${gl_bai}k命令高级用法 ${gl_huang}★${gl_bai}"
 	  echo -e "${gl_kjlan}------------------------"
 	  echo -e "${gl_kjlan}0.   ${gl_bai}返回主菜单"
 	  echo -e "${gl_kjlan}------------------------${gl_bai}"
@@ -20363,10 +20350,6 @@ EOF
 			set_dns_ui
 			  ;;
 
-		  8)
-
-			dd_xitong
-			  ;;
 		  9)
 			root_use
 			send_stats "新用户禁用root"
@@ -21259,33 +21242,6 @@ EOF
 			  k_info
 			  ;;
 
-		  102)
-			  clear
-			  send_stats "卸载科技lion脚本"
-			  echo "卸载科技lion脚本"
-			  echo "------------------------------------------------"
-			  echo "将彻底卸载kejilion脚本，不影响你其他功能"
-			  read -e -p "确定继续吗？(Y/N): " choice
-
-			  case "$choice" in
-				[Yy])
-				  clear
-				  (crontab -l | grep -v "kejilion.sh") | crontab -
-				  rm -f /usr/local/bin/k
-				  rm ~/kejilion.sh
-				  echo "脚本已卸载，再见！"
-				  break_end
-				  clear
-				  exit
-				  ;;
-				[Nn])
-				  echo "已取消"
-				  ;;
-				*)
-				  echo "无效的选择，请输入 Y 或 N。"
-				  ;;
-			  esac
-			  ;;
 
 		  0)
 			  kejilion
@@ -21585,7 +21541,6 @@ while true; do
 				chmod +x "$tmp_file"
 				mv -f "$tmp_file" ~/kejilion.sh
 				canshu_v6
-				CheckFirstRun_true
 				yinsiyuanquan2
 				cp -f ~/kejilion.sh /usr/local/bin/k > /dev/null 2>&1
 				ln -sf /usr/local/bin/k /usr/bin/k > /dev/null 2>&1
@@ -21626,8 +21581,7 @@ while true; do
 			if [ -n "$cron_sed_cmd" ]; then
 				SH_Update_task="$SH_Update_task && $cron_sed_cmd"
 			fi
-			# 从旧脚本恢复 permission_granted 和 ENABLE_STATS 设置
-			SH_Update_task="$SH_Update_task && grep -q 'permission_granted=\"true\"' ~/kejilion.sh.bak 2>/dev/null && sed -i 's/permission_granted=\"false\"/permission_granted=\"true\"/' ~/kejilion.sh; grep -q 'ENABLE_STATS=\"false\"' ~/kejilion.sh.bak 2>/dev/null && sed -i 's/ENABLE_STATS=\"true\"/ENABLE_STATS=\"false\"/' ~/kejilion.sh"
+			SH_Update_task="$SH_Update_task && grep -q 'ENABLE_STATS=\"false\"' ~/kejilion.sh.bak 2>/dev/null && sed -i 's/ENABLE_STATS=\"true\"/ENABLE_STATS=\"false\"/' ~/kejilion.sh"
 			# 部署到 /usr/local/bin/k 和 /usr/bin/k
 			SH_Update_task="$SH_Update_task; cp -f ~/kejilion.sh /usr/local/bin/k 2>/dev/null; ln -sf /usr/local/bin/k /usr/bin/k 2>/dev/null"
 			# 下载失败时清理临时文件
@@ -21659,6 +21613,181 @@ done
 
 
 
+valid_reinstall_port() {
+	[[ "$1" =~ ^[0-9]+$ ]] && [ "$1" -ge 1 ] && [ "$1" -le 65535 ]
+}
+
+reinstall_os_menu() {
+	root_use
+	while true; do
+		clear
+		echo -e "${gl_kjlan}科技lion > 系统管理 > 重装/DD系统${gl_bai}"
+		echo "------------------------------------------------"
+		echo -e "${gl_huang}Linux${gl_bai}"
+		echo "11. Debian 13              12. Debian 12"
+		echo "13. Ubuntu 24.04           14. Ubuntu 22.04"
+		echo "15. Rocky Linux 10         16. AlmaLinux 10"
+		echo "17. CentOS Stream 10       18. Fedora 44"
+		echo "19. Alpine Linux 3.24      20. Arch Linux"
+		echo "------------------------------------------------"
+		echo -e "${gl_huang}Windows${gl_bai}"
+		echo "31. Windows 11 Pro         32. Windows 10 Pro"
+		echo "33. Windows Server 2025    34. Windows Server 2022"
+		echo "------------------------------------------------"
+		echo "0.  返回"
+		read -e -p "请选择要安装的系统: " reinstall_choice
+
+		local os_name="" os_version="" image_name="" system_label="" system_type=""
+		case "$reinstall_choice" in
+			11) os_name=debian; os_version=13; system_label="Debian 13"; system_type=linux ;;
+			12) os_name=debian; os_version=12; system_label="Debian 12"; system_type=linux ;;
+			13) os_name=ubuntu; os_version=24.04; system_label="Ubuntu 24.04"; system_type=linux ;;
+			14) os_name=ubuntu; os_version=22.04; system_label="Ubuntu 22.04"; system_type=linux ;;
+			15) os_name=rocky; os_version=10; system_label="Rocky Linux 10"; system_type=linux ;;
+			16) os_name=alma; os_version=10; system_label="AlmaLinux 10"; system_type=linux ;;
+			17) os_name=centos; os_version=10; system_label="CentOS Stream 10"; system_type=linux ;;
+			18) os_name=fedora; os_version=44; system_label="Fedora 44"; system_type=linux ;;
+			19) os_name=alpine; os_version=3.24; system_label="Alpine Linux 3.24"; system_type=linux ;;
+			20) os_name=arch; os_version=""; system_label="Arch Linux"; system_type=linux ;;
+			31) image_name="Windows 11 Pro"; system_label="$image_name"; system_type=windows ;;
+			32) image_name="Windows 10 Pro"; system_label="$image_name"; system_type=windows ;;
+			33) image_name="Windows Server 2025 SERVERDATACENTER"; system_label="Windows Server 2025 Datacenter"; system_type=windows ;;
+			34) image_name="Windows Server 2022 SERVERDATACENTER"; system_label="Windows Server 2022 Datacenter"; system_type=windows ;;
+			0) return ;;
+			*) echo "无效的输入!"; break_end; continue ;;
+		esac
+
+		local login_user="" login_port="" login_password="" login_password_confirm="" ssh_key="" auth_choice=""
+		if [ "$system_type" = linux ]; then
+			read -e -p "请输入登录用户名 [root]: " login_user
+			login_user=${login_user:-root}
+			while true; do
+				read -e -p "请输入 SSH 端口 [22]: " login_port
+				login_port=${login_port:-22}
+				valid_reinstall_port "$login_port" && break
+				echo "端口必须是 1-65535 的数字。"
+			done
+			echo "1. 密码登录    2. SSH 公钥登录"
+			while true; do
+				read -e -p "请选择登录方式 [1]: " auth_choice
+				auth_choice=${auth_choice:-1}
+				case "$auth_choice" in
+					1)
+						while true; do
+							read -r -s -p "请输入登录密码（必填）: " login_password; echo
+							read -r -s -p "请再次输入登录密码: " login_password_confirm; echo
+							[ -n "$login_password" ] && [ "$login_password" = "$login_password_confirm" ] && break
+							echo "密码为空或两次输入不一致，请重新输入。"
+						done
+						break
+						;;
+					2) while [ -z "$ssh_key" ]; do read -r -p "请输入完整 SSH 公钥（必填）: " ssh_key; done; break ;;
+					*) echo "请输入 1 或 2。" ;;
+				esac
+			done
+		else
+			read -e -p "请输入 Windows 用户名 [Administrator]: " login_user
+			login_user=${login_user:-Administrator}
+			while true; do
+				read -e -p "请输入 RDP 端口 [3389]: " login_port
+				login_port=${login_port:-3389}
+				valid_reinstall_port "$login_port" && break
+				echo "端口必须是 1-65535 的数字。"
+			done
+			while true; do
+				read -r -s -p "请输入 Windows 登录密码（必填）: " login_password; echo
+				read -r -s -p "请再次输入 Windows 登录密码: " login_password_confirm; echo
+				[ -n "$login_password" ] && [ "$login_password" = "$login_password_confirm" ] && break
+				echo "密码为空或两次输入不一致，请重新输入。"
+			done
+		fi
+
+		clear
+		echo -e "${gl_hong}危险操作：重装会彻底清空当前服务器的全部磁盘数据！${gl_bai}"
+		echo "目标系统: $system_label"
+		echo "登录用户: $login_user"
+		[ "$system_type" = linux ] && echo "SSH 端口: $login_port" || echo "RDP 端口: $login_port"
+		echo "此操作不可恢复，请先确认重要数据已经备份。"
+		read -r -p "确认清空磁盘并开始重装，请输入 YES: " reinstall_confirm
+		if [ "$reinstall_confirm" != YES ]; then
+			echo "已取消重装。"
+			break_end
+			continue
+		fi
+
+		local reinstall_script="/tmp/kejilion-reinstall-$$.sh"
+		if ! curl -fsSL "https://raw.githubusercontent.com/bin456789/reinstall/main/reinstall.sh" -o "$reinstall_script"; then
+			echo "下载官方重装脚本失败。"; rm -f "$reinstall_script"; break_end; continue
+		fi
+		if ! head -n 1 "$reinstall_script" | grep -q '^#!' || ! bash -n "$reinstall_script"; then
+			echo "下载的重装脚本校验失败，已停止执行。"; rm -f "$reinstall_script"; break_end; continue
+		fi
+
+		local -a reinstall_cmd
+		if [ "$system_type" = linux ]; then
+			reinstall_cmd=(bash "$reinstall_script" "$os_name")
+			[ -n "$os_version" ] && reinstall_cmd+=("$os_version")
+			reinstall_cmd+=(--username "$login_user" --ssh-port "$login_port")
+			[ "$auth_choice" = 1 ] && reinstall_cmd+=(--password "$login_password") || reinstall_cmd+=(--ssh-key "$ssh_key")
+		else
+			reinstall_cmd=(bash "$reinstall_script" windows --image-name "$image_name" --lang zh-cn --username "$login_user" --password "$login_password" --rdp-port "$login_port" --allow-ping)
+		fi
+		send_stats "重装系统-$system_label"
+		"${reinstall_cmd[@]}"
+		rm -f "$reinstall_script"
+		break_end
+	done
+}
+
+system_management_menu() {
+	while true; do
+		clear
+		echo -e "${gl_kjlan}科技lion > 系统管理${gl_bai}"
+		echo "------------------------------------------------"
+		echo "1.1  系统信息"
+		echo "1.2  系统更新"
+		echo "1.3  系统清理"
+		echo "1.4  基础工具"
+		echo -e "1.5  重装/DD系统 ${gl_hong}(清空磁盘)${gl_bai}"
+		echo "------------------------------------------------"
+		echo "0.   返回主菜单"
+		read -e -p "请输入你的选择: " system_choice
+		case "$system_choice" in
+			1.1) linux_info ;;
+			1.2) clear; send_stats "系统更新"; linux_update ;;
+			1.3) clear; send_stats "系统清理"; linux_clean ;;
+			1.4) linux_tools ;;
+			1.5) reinstall_os_menu ;;
+			0) return ;;
+			*) echo "无效的输入!" ;;
+		esac
+		break_end
+	done
+}
+
+uninstall_kejilion_script() {
+	clear
+	echo "卸载脚本"
+	echo "------------------------------------------------"
+	read -e -p "此操作将删除脚本文件、备份、自动更新任务及所有快捷入口。确认卸载吗？[y/N]: " uninstall_confirm
+	if [[ ! "$uninstall_confirm" =~ ^[Yy]$ ]]; then
+		echo "已取消卸载。"
+		return
+	fi
+	read -e -p "请再次确认，确定彻底卸载吗？[y/N]: " uninstall_confirm_again
+	if [[ ! "$uninstall_confirm_again" =~ ^[Yy]$ ]]; then
+		echo "已取消卸载。"
+		return
+	fi
+	(crontab -l 2>/dev/null | grep -v "kejilion.sh") | crontab - 2>/dev/null || true
+	find /usr/local/bin /usr/bin -maxdepth 1 -type l -lname "/usr/local/bin/k" -delete 2>/dev/null
+	rm -f /usr/local/bin/k /usr/bin/k
+	rm -f "$HOME/kejilion.sh" "$HOME/kejilion.sh.bak" "$HOME"/kejilion_tmp.*
+	echo "脚本已彻底卸载。"
+	exit 0
+}
+
+
 kejilion_sh() {
 while true; do
 clear
@@ -21669,10 +21798,8 @@ echo "╩ ╩╚═╝╚╝╩╩═╝╩╚═╝╝╚╝o╚═╝╩ ╩"
 echo -e "科技lion脚本工具箱 v$sh_v"
 echo -e "命令行输入${gl_huang}k${gl_kjlan}可快速启动脚本${gl_bai}"
 echo -e "${gl_kjlan}------------------------${gl_bai}"
-echo -e "${gl_kjlan}1.   ${gl_bai}系统信息查询"
-echo -e "${gl_kjlan}2.   ${gl_bai}系统更新"
-echo -e "${gl_kjlan}3.   ${gl_bai}系统清理"
-echo -e "${gl_kjlan}4.   ${gl_bai}基础工具"
+echo -e "${gl_kjlan}1.   ${gl_bai}系统管理 ${gl_huang}(信息/更新/清理/工具/重装)${gl_bai}"
+echo -e "${gl_kjlan}------------------------${gl_bai}"
 echo -e "${gl_kjlan}5.   ${gl_bai}BBR管理"
 echo -e "${gl_kjlan}6.   ${gl_bai}Docker管理"
 echo -e "${gl_kjlan}7.   ${gl_bai}WARP管理"
@@ -21682,16 +21809,14 @@ echo -e "${gl_kjlan}12.  ${gl_bai}后台工作区"
 echo -e "${gl_kjlan}13.  ${gl_bai}系统工具"
 echo -e "${gl_kjlan}------------------------${gl_bai}"
 echo -e "${gl_kjlan}00.  ${gl_bai}脚本更新"
+echo -e "${gl_kjlan}01.  ${gl_bai}卸载脚本"
 echo -e "${gl_kjlan}------------------------${gl_bai}"
 echo -e "${gl_kjlan}0.   ${gl_bai}退出脚本"
 echo -e "${gl_kjlan}------------------------${gl_bai}"
 read -e -p "请输入你的选择: " choice
 
 case $choice in
-  1) linux_info ;;
-  2) clear ; send_stats "系统更新" ; linux_update ;;
-  3) clear ; send_stats "系统清理" ; linux_clean ;;
-  4) linux_tools ;;
+  1) system_management_menu ;;
   5) linux_bbr ;;
   6) linux_docker ;;
   7) clear ; send_stats "warp管理" ; install wget
@@ -21702,6 +21827,7 @@ case $choice in
   12) linux_work ;;
   13) linux_Settings ;;
   00) kejilion_update ;;
+  01) uninstall_kejilion_script ;;
   0) clear ; exit ;;
   *) echo "无效的输入!" ;;
 esac
@@ -21790,7 +21916,7 @@ else
 			linux_clean
 			;;
 		dd|重装)
-			dd_xitong
+			reinstall_os_menu
 			;;
 		bbr3|bbrv3)
 			bbrv3

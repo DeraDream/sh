@@ -1,5 +1,5 @@
 #!/bin/bash
-sh_v="4.5.6"
+sh_v="4.5.7"
 
 
 gl_hui='\e[37m'
@@ -13,7 +13,6 @@ gl_kjlan='\033[96m'
 
 
 canshu="default"
-permission_granted="false"
 ENABLE_STATS="true"
 
 
@@ -49,11 +48,6 @@ canshu_v6() {
 }
 
 
-CheckFirstRun_true() {
-	if grep -q '^permission_granted="true"' /usr/local/bin/k > /dev/null 2>&1; then
-		sed -i 's/^permission_granted="false"/permission_granted="true"/' ~/kejilion.sh
-	fi
-}
 
 
 
@@ -93,7 +87,6 @@ fi
 
 
 canshu_v6
-CheckFirstRun_true
 yinsiyuanquan2
 
 
@@ -117,34 +110,6 @@ cp -f ~/kejilion.sh /usr/local/bin/k > /dev/null 2>&1
 
 
 
-CheckFirstRun_false() {
-	if grep -q '^permission_granted="false"' /usr/local/bin/k > /dev/null 2>&1; then
-		UserLicenseAgreement
-	fi
-}
-
-# Позвольте пользователю согласиться с условиями
-UserLicenseAgreement() {
-	clear
-	echo -e "${gl_kjlan}Добро пожаловать в The Tech Lion Script Toolbox${gl_bai}"
-	echo "Впервые используя сценарий, пожалуйста, прочитайте и согласитесь с пользовательским лицензионным соглашением."
-	echo "Пользовательский лицензионный соглашение: https://blog.kejilion.pro/user-license-agreement/"
-	echo -e "----------------------"
-	read -r -p "Вы согласны с вышеуказанными условиями? (Y/N):" user_input
-
-
-	if [ "$user_input" = "y" ] || [ "$user_input" = "Y" ]; then
-		send_stats "Лицензионное согласие"
-		sed -i 's/^permission_granted="false"/permission_granted="true"/' ~/kejilion.sh
-		sed -i 's/^permission_granted="false"/permission_granted="true"/' /usr/local/bin/k
-	else
-		send_stats "Отказ от разрешения"
-		clear
-		exit
-	fi
-}
-
-CheckFirstRun_false
 
 
 
@@ -11376,33 +11341,6 @@ EOF
 			  k_info
 			  ;;
 
-		  102)
-			  clear
-			  send_stats "Сценарий удаления технического льва"
-			  echo "Сценарий удаления технического льва"
-			  echo "------------------------------------------------"
-			  echo "Полностью удалит сценарий Kejilion и не повлияет на ваши другие функции"
-			  read -e -p "Вы обязательно продолжите? (Y/N):" choice
-
-			  case "$choice" in
-				[Yy])
-				  clear
-				  (crontab -l | grep -v "kejilion.sh") | crontab -
-				  rm -f /usr/local/bin/k
-				  rm ~/kejilion.sh
-				  echo "Сценарий был удален, прощай!"
-				  break_end
-				  clear
-				  exit
-				  ;;
-				[Nn])
-				  echo "Отменен"
-				  ;;
-				*)
-				  echo "Неверный выбор, пожалуйста, введите Y или N."
-				  ;;
-			  esac
-			  ;;
 
 		  0)
 			  kejilion
@@ -11684,7 +11622,6 @@ while true; do
 				curl -sS -O ${gh_proxy}raw.githubusercontent.com/DeraDream/sh/main/kejilion.sh && chmod +x kejilion.sh
 			fi
 			canshu_v6
-			CheckFirstRun_true
 			yinsiyuanquan2
 			cp -f ~/kejilion.sh /usr/local/bin/k > /dev/null 2>&1
 			echo -e "${gl_lv}Сценарий был обновлен до последней версии!${gl_huang}v$sh_v_new${gl_bai}"
@@ -11731,6 +11668,29 @@ done
 
 
 
+uninstall_kejilion_script() {
+	clear
+	echo "Удалить скрипт"
+	echo "------------------------------------------------"
+	read -e -p "Будут удалены скрипт, резервные копии, задания обновления и ярлыки. Продолжить? [y/N]: " uninstall_confirm
+	if [[ ! "$uninstall_confirm" =~ ^[Yy]$ ]]; then
+		echo "Удаление отменено."
+		return
+	fi
+	read -e -p "Подтвердите ещё раз полное удаление. [y/N]: " uninstall_confirm_again
+	if [[ ! "$uninstall_confirm_again" =~ ^[Yy]$ ]]; then
+		echo "Удаление отменено."
+		return
+	fi
+	(crontab -l 2>/dev/null | grep -v "kejilion.sh") | crontab - 2>/dev/null || true
+	find /usr/local/bin /usr/bin -maxdepth 1 -type l -lname "/usr/local/bin/k" -delete 2>/dev/null
+	rm -f /usr/local/bin/k /usr/bin/k
+	rm -f "$HOME/kejilion.sh" "$HOME/kejilion.sh.bak" "$HOME"/kejilion_tmp.*
+	echo "Скрипт полностью удалён."
+	exit 0
+}
+
+
 kejilion_sh() {
 while true; do
 clear
@@ -11754,6 +11714,7 @@ echo -e "${gl_kjlan}12.  ${gl_bai}Мое рабочее пространство
 echo -e "${gl_kjlan}13.  ${gl_bai}Системные инструменты"
 echo -e "${gl_kjlan}------------------------${gl_bai}"
 echo -e "${gl_kjlan}00.  ${gl_bai}Обновление скрипта"
+echo -e "${gl_kjlan}01.  ${gl_bai}Удалить скрипт"
 echo -e "${gl_kjlan}------------------------${gl_bai}"
 echo -e "${gl_kjlan}0.   ${gl_bai}Выход сценария"
 echo -e "${gl_kjlan}------------------------${gl_bai}"
@@ -11774,6 +11735,7 @@ case $choice in
   12) linux_work ;;
   13) linux_Settings ;;
   00) kejilion_update ;;
+  01) uninstall_kejilion_script ;;
   0) clear ; exit ;;
   *) echo "Неверный ввод!" ;;
 esac
