@@ -8890,159 +8890,6 @@ linux_test() {
 
 
 }
-
-
-linux_Oracle() {
-
-
-	 while true; do
-	  clear
-	  send_stats "甲骨文云脚本合集"
-	  echo -e "甲骨文云脚本合集"
-	  echo -e "${gl_kjlan}------------------------"
-	  echo -e "${gl_kjlan}1.   ${gl_bai}安装闲置机器活跃脚本"
-	  echo -e "${gl_kjlan}2.   ${gl_bai}卸载闲置机器活跃脚本"
-	  echo -e "${gl_kjlan}------------------------"
-	  echo -e "${gl_kjlan}3.   ${gl_bai}DD重装系统脚本"
-	  echo -e "${gl_kjlan}4.   ${gl_bai}R探长开机脚本"
-	  echo -e "${gl_kjlan}5.   ${gl_bai}开启ROOT密码登录模式"
-	  echo -e "${gl_kjlan}6.   ${gl_bai}IPV6恢复工具"
-	  echo -e "${gl_kjlan}------------------------"
-	  echo -e "${gl_kjlan}0.   ${gl_bai}返回主菜单"
-	  echo -e "${gl_kjlan}------------------------${gl_bai}"
-	  read -e -p "请输入你的选择: " sub_choice
-
-	  case $sub_choice in
-		  1)
-			  clear
-			  echo "活跃脚本: CPU占用10-20% 内存占用20% "
-			  read -e -p "确定安装吗？(Y/N): " choice
-			  case "$choice" in
-				[Yy])
-
-				  install_docker
-
-				  # 设置默认值
-				  local DEFAULT_CPU_CORE=1
-				  local DEFAULT_CPU_UTIL="10-20"
-				  local DEFAULT_MEM_UTIL=20
-				  local DEFAULT_SPEEDTEST_INTERVAL=120
-
-				  # 提示用户输入CPU核心数和占用百分比，如果回车则使用默认值
-				  read -e -p "请输入CPU核心数 [默认: $DEFAULT_CPU_CORE]: " cpu_core
-				  local cpu_core=${cpu_core:-$DEFAULT_CPU_CORE}
-
-				  read -e -p "请输入CPU占用百分比范围（例如10-20） [默认: $DEFAULT_CPU_UTIL]: " cpu_util
-				  local cpu_util=${cpu_util:-$DEFAULT_CPU_UTIL}
-
-				  read -e -p "请输入内存占用百分比 [默认: $DEFAULT_MEM_UTIL]: " mem_util
-				  local mem_util=${mem_util:-$DEFAULT_MEM_UTIL}
-
-				  read -e -p "请输入Speedtest间隔时间（秒） [默认: $DEFAULT_SPEEDTEST_INTERVAL]: " speedtest_interval
-				  local speedtest_interval=${speedtest_interval:-$DEFAULT_SPEEDTEST_INTERVAL}
-
-				  # 运行Docker容器
-				  docker run -d --name=lookbusy --restart=always \
-					  -e TZ=Asia/Shanghai \
-					  -e CPU_UTIL="$cpu_util" \
-					  -e CPU_CORE="$cpu_core" \
-					  -e MEM_UTIL="$mem_util" \
-					  -e SPEEDTEST_INTERVAL="$speedtest_interval" \
-					  fogforest/lookbusy
-				  send_stats "甲骨文云安装活跃脚本"
-
-				  ;;
-				[Nn])
-
-				  ;;
-				*)
-				  echo "无效的选择，请输入 Y 或 N。"
-				  ;;
-			  esac
-			  ;;
-		  2)
-			  clear
-			  docker rm -f lookbusy
-			  docker rmi fogforest/lookbusy
-			  send_stats "甲骨文云卸载活跃脚本"
-			  ;;
-
-		  3)
-		  clear
-		  echo "重装系统"
-		  echo "--------------------------------"
-		  echo -e "${gl_hong}注意: ${gl_bai}重装有风险失联，不放心者慎用。重装预计花费15分钟，请提前备份数据。"
-		  read -e -p "确定继续吗？(Y/N): " choice
-
-		  case "$choice" in
-			[Yy])
-			  while true; do
-				read -e -p "请选择要重装的系统:  1. Debian12 | 2. Ubuntu20.04 : " sys_choice
-
-				case "$sys_choice" in
-				  1)
-					local xitong="-d 12"
-					break  # 结束循环
-					;;
-				  2)
-					local xitong="-u 20.04"
-					break  # 结束循环
-					;;
-				  *)
-					echo "无效的选择，请重新输入。"
-					;;
-				esac
-			  done
-
-			  read -e -p "请输入你重装后的密码: " vpspasswd
-			  install wget
-			  bash <(wget --no-check-certificate -qO- "${gh_proxy}raw.githubusercontent.com/MoeClub/Note/master/InstallNET.sh") $xitong -v 64 -p $vpspasswd -port 22
-			  send_stats "甲骨文云重装系统脚本"
-			  ;;
-			[Nn])
-			  echo "已取消"
-			  ;;
-			*)
-			  echo "无效的选择，请输入 Y 或 N。"
-			  ;;
-		  esac
-			  ;;
-
-		  4)
-			  clear
-			  send_stats "R探长开机脚本"
-			  bash <(wget -qO- ${gh_proxy}github.com/Yohann0617/oci-helper/releases/latest/download/sh_oci-helper_install.sh)
-			  ;;
-		  5)
-			  clear
-			  add_sshpasswd
-			  ;;
-		  6)
-			  clear
-			  bash <(curl -L -s jhb.ovh/jb/v6.sh)
-			  echo "该功能由jhb大神提供，感谢他！"
-			  send_stats "ipv6修复"
-			  ;;
-		  0)
-			  kejilion
-
-			  ;;
-		  *)
-			  echo "无效的输入!"
-			  ;;
-	  esac
-	  break_end
-
-	done
-
-
-
-}
-
-
-
-
-
 docker_tato() {
 
 	local container_count=$(docker ps -a -q 2>/dev/null | wc -l)
@@ -19479,196 +19326,6 @@ discourse,yunsou,ahhhhfs,nsgame,gying" \
 
 done
 }
-
-
-
-linux_work() {
-
-	while true; do
-	  clear
-	  send_stats "后台工作区"
-	  echo -e "后台工作区"
-	  echo -e "系统将为你提供可以后台常驻运行的工作区，你可以用来执行长时间的任务"
-	  echo -e "即使你断开SSH，工作区中的任务也不会中断，后台常驻任务。"
-	  echo -e "${gl_huang}提示: ${gl_bai}进入工作区后使用Ctrl+b再单独按d，退出工作区！"
-	  echo -e "${gl_kjlan}------------------------"
-	  echo "当前已存在的工作区列表"
-	  echo -e "${gl_kjlan}------------------------"
-	  tmux list-sessions
-	  echo -e "${gl_kjlan}------------------------"
-	  echo -e "${gl_kjlan}1.   ${gl_bai}1号工作区"
-	  echo -e "${gl_kjlan}2.   ${gl_bai}2号工作区"
-	  echo -e "${gl_kjlan}3.   ${gl_bai}3号工作区"
-	  echo -e "${gl_kjlan}4.   ${gl_bai}4号工作区"
-	  echo -e "${gl_kjlan}5.   ${gl_bai}5号工作区"
-	  echo -e "${gl_kjlan}6.   ${gl_bai}6号工作区"
-	  echo -e "${gl_kjlan}7.   ${gl_bai}7号工作区"
-	  echo -e "${gl_kjlan}8.   ${gl_bai}8号工作区"
-	  echo -e "${gl_kjlan}9.   ${gl_bai}9号工作区"
-	  echo -e "${gl_kjlan}10.  ${gl_bai}10号工作区"
-	  echo -e "${gl_kjlan}------------------------"
-	  echo -e "${gl_kjlan}21.  ${gl_bai}SSH常驻模式 ${gl_huang}★${gl_bai}"
-	  echo -e "${gl_kjlan}22.  ${gl_bai}创建/进入工作区"
-	  echo -e "${gl_kjlan}23.  ${gl_bai}注入命令到后台工作区"
-	  echo -e "${gl_kjlan}24.  ${gl_bai}删除指定工作区"
-	  echo -e "${gl_kjlan}------------------------"
-	  echo -e "${gl_kjlan}0.   ${gl_bai}返回主菜单"
-	  echo -e "${gl_kjlan}------------------------${gl_bai}"
-	  read -e -p "请输入你的选择: " sub_choice
-
-	  case $sub_choice in
-
-		  1)
-			  clear
-			  install tmux
-			  local SESSION_NAME="work1"
-			  send_stats "启动工作区$SESSION_NAME"
-			  tmux_run
-
-			  ;;
-		  2)
-			  clear
-			  install tmux
-			  local SESSION_NAME="work2"
-			  send_stats "启动工作区$SESSION_NAME"
-			  tmux_run
-			  ;;
-		  3)
-			  clear
-			  install tmux
-			  local SESSION_NAME="work3"
-			  send_stats "启动工作区$SESSION_NAME"
-			  tmux_run
-			  ;;
-		  4)
-			  clear
-			  install tmux
-			  local SESSION_NAME="work4"
-			  send_stats "启动工作区$SESSION_NAME"
-			  tmux_run
-			  ;;
-		  5)
-			  clear
-			  install tmux
-			  local SESSION_NAME="work5"
-			  send_stats "启动工作区$SESSION_NAME"
-			  tmux_run
-			  ;;
-		  6)
-			  clear
-			  install tmux
-			  local SESSION_NAME="work6"
-			  send_stats "启动工作区$SESSION_NAME"
-			  tmux_run
-			  ;;
-		  7)
-			  clear
-			  install tmux
-			  local SESSION_NAME="work7"
-			  send_stats "启动工作区$SESSION_NAME"
-			  tmux_run
-			  ;;
-		  8)
-			  clear
-			  install tmux
-			  local SESSION_NAME="work8"
-			  send_stats "启动工作区$SESSION_NAME"
-			  tmux_run
-			  ;;
-		  9)
-			  clear
-			  install tmux
-			  local SESSION_NAME="work9"
-			  send_stats "启动工作区$SESSION_NAME"
-			  tmux_run
-			  ;;
-		  10)
-			  clear
-			  install tmux
-			  local SESSION_NAME="work10"
-			  send_stats "启动工作区$SESSION_NAME"
-			  tmux_run
-			  ;;
-
-		  21)
-			while true; do
-			  clear
-			  if grep -q 'tmux attach-session -t sshd || tmux new-session -s sshd' ~/.bashrc; then
-				  local tmux_sshd_status="${gl_lv}开启${gl_bai}"
-			  else
-				  local tmux_sshd_status="${gl_hui}关闭${gl_bai}"
-			  fi
-			  send_stats "SSH常驻模式 "
-			  echo -e "SSH常驻模式 ${tmux_sshd_status}"
-			  echo "开启后SSH连接后会直接进入常驻模式，直接回到之前的工作状态。"
-			  echo "------------------------"
-			  echo "1. 开启            2. 关闭"
-			  echo "------------------------"
-			  echo "0. 返回上一级选单"
-			  echo "------------------------"
-			  read -e -p "请输入你的选择: " gongzuoqu_del
-			  case "$gongzuoqu_del" in
-				1)
-			  	  install tmux
-			  	  local SESSION_NAME="sshd"
-			  	  send_stats "启动工作区$SESSION_NAME"
-				  grep -q "tmux attach-session -t sshd" ~/.bashrc || echo -e "\n# 自动进入 tmux 会话\nif [[ -z \"\$TMUX\" ]]; then\n    tmux attach-session -t sshd || tmux new-session -s sshd\nfi" >> ~/.bashrc
-				  source ~/.bashrc
-			  	  tmux_run
-				  ;;
-				2)
-				  sed -i '/# 自动进入 tmux 会话/,+4d' ~/.bashrc
-				  tmux kill-window -t sshd
-				  ;;
-				*)
-				  break
-				  ;;
-			  esac
-			done
-			  ;;
-
-		  22)
-			  read -e -p "请输入你创建或进入的工作区名称，如1001 kj001 work1: " SESSION_NAME
-			  tmux_run
-			  send_stats "自定义工作区"
-			  ;;
-
-
-		  23)
-			  read -e -p "请输入你要后台执行的命令，如:curl -fsSL https://get.docker.com | sh: " tmuxd
-			  tmux_run_d
-			  send_stats "注入命令到后台工作区"
-			  ;;
-
-		  24)
-			  read -e -p "请输入要删除的工作区名称: " gongzuoqu_name
-			  tmux kill-window -t $gongzuoqu_name
-			  send_stats "删除工作区"
-			  ;;
-
-		  0)
-			  kejilion
-			  ;;
-		  *)
-			  echo "无效的输入!"
-			  ;;
-	  esac
-	  break_end
-
-	done
-
-
-}
-
-
-
-
-
-
-
-
-
-
 # 智能切换镜像源函数
 switch_mirror() {
 	# 可选参数，默认为 false
@@ -21645,6 +21302,47 @@ valid_reinstall_port() {
 	[[ "$1" =~ ^[0-9]+$ ]] && [ "$1" -ge 1 ] && [ "$1" -le 65535 ]
 }
 
+select_linux_version() {
+	local distro_label="$1"
+	shift
+	local -a supported_versions=("$@")
+	local version_choice manual_version index version
+	while true; do
+		clear
+		echo -e "${gl_kjlan}科技lion > 系统管理 > 重装/DD系统 > ${distro_label}${gl_bai}"
+		echo "------------------------------------------------"
+		for index in "${!supported_versions[@]}"; do
+			version=${supported_versions[$index]}
+			[ "$version" = rolling ] && version="滚动版本"
+			printf "%2d. %s\n" "$((index + 1))" "$version"
+		done
+		echo "------------------------------------------------"
+		echo "99. 手动输入版本"
+		echo "0.  返回发行版列表"
+		read -e -p "请选择版本: " version_choice
+		if [ "$version_choice" = 0 ]; then
+			return 1
+		elif [ "$version_choice" = 99 ]; then
+			read -e -p "请输入版本号: " manual_version
+			manual_version=$(printf '%s' "$manual_version" | tr '[:upper:]' '[:lower:]')
+			for version in "${supported_versions[@]}"; do
+				if [ "$manual_version" = "$version" ]; then
+					selected_os_version="$version"
+					return 0
+				fi
+			done
+			echo "版本无效。${distro_label} 支持: ${supported_versions[*]}"
+			break_end
+		elif [[ "$version_choice" =~ ^[0-9]+$ ]] && ((10#$version_choice >= 1 && 10#$version_choice <= ${#supported_versions[@]})); then
+			selected_os_version=${supported_versions[$((10#$version_choice - 1))]}
+			return 0
+		else
+			echo "无效的输入!"
+			break_end
+		fi
+	done
+}
+
 reinstall_os_menu() {
 	root_use
 	while true; do
@@ -21652,11 +21350,13 @@ reinstall_os_menu() {
 		echo -e "${gl_kjlan}科技lion > 系统管理 > 重装/DD系统${gl_bai}"
 		echo "------------------------------------------------"
 		echo -e "${gl_huang}Linux${gl_bai}"
-		echo "11. Debian 13              12. Debian 12"
-		echo "13. Ubuntu 24.04           14. Ubuntu 22.04"
-		echo "15. Rocky Linux 10         16. AlmaLinux 10"
-		echo "17. CentOS Stream 10       18. Fedora 44"
-		echo "19. Alpine Linux 3.24      20. Arch Linux"
+		echo "11. Debian                 12. Ubuntu"
+		echo "13. Rocky Linux            14. AlmaLinux"
+		echo "15. CentOS Stream          16. Fedora"
+		echo "17. Alpine Linux           18. Arch Linux"
+		echo "19. Oracle Linux           20. openSUSE"
+		echo "21. openEuler              22. Kali Linux"
+		echo "23. Anolis OS              24. OpenCloudOS"
 		echo "------------------------------------------------"
 		echo -e "${gl_huang}Windows${gl_bai}"
 		echo "31. Windows 11 Pro         32. Windows 10 Pro"
@@ -21666,17 +21366,22 @@ reinstall_os_menu() {
 		read -e -p "请选择要安装的系统: " reinstall_choice
 
 		local os_name="" os_version="" image_name="" system_label="" system_type=""
+		local -a distro_versions=()
 		case "$reinstall_choice" in
-			11) os_name=debian; os_version=13; system_label="Debian 13"; system_type=linux ;;
-			12) os_name=debian; os_version=12; system_label="Debian 12"; system_type=linux ;;
-			13) os_name=ubuntu; os_version=24.04; system_label="Ubuntu 24.04"; system_type=linux ;;
-			14) os_name=ubuntu; os_version=22.04; system_label="Ubuntu 22.04"; system_type=linux ;;
-			15) os_name=rocky; os_version=10; system_label="Rocky Linux 10"; system_type=linux ;;
-			16) os_name=alma; os_version=10; system_label="AlmaLinux 10"; system_type=linux ;;
-			17) os_name=centos; os_version=10; system_label="CentOS Stream 10"; system_type=linux ;;
-			18) os_name=fedora; os_version=44; system_label="Fedora 44"; system_type=linux ;;
-			19) os_name=alpine; os_version=3.24; system_label="Alpine Linux 3.24"; system_type=linux ;;
-			20) os_name=arch; os_version=""; system_label="Arch Linux"; system_type=linux ;;
+			11) os_name=debian; system_label=Debian; distro_versions=(9 10 11 12 13); system_type=linux ;;
+			12) os_name=ubuntu; system_label=Ubuntu; distro_versions=(18.04 20.04 22.04 24.04 26.04); system_type=linux ;;
+			13) os_name=rocky; system_label="Rocky Linux"; distro_versions=(8 9 10); system_type=linux ;;
+			14) os_name=almalinux; system_label=AlmaLinux; distro_versions=(8 9 10); system_type=linux ;;
+			15) os_name=centos; system_label="CentOS Stream"; distro_versions=(9 10); system_type=linux ;;
+			16) os_name=fedora; system_label=Fedora; distro_versions=(43 44); system_type=linux ;;
+			17) os_name=alpine; system_label="Alpine Linux"; distro_versions=(3.21 3.22 3.23 3.24); system_type=linux ;;
+			18) os_name=arch; system_label="Arch Linux"; distro_versions=(rolling); system_type=linux ;;
+			19) os_name=oracle; system_label="Oracle Linux"; distro_versions=(8 9 10); system_type=linux ;;
+			20) os_name=opensuse; system_label=openSUSE; distro_versions=(16.0 tumbleweed); system_type=linux ;;
+			21) os_name=openeuler; system_label=openEuler; distro_versions=(20.03 22.03 24.03); system_type=linux ;;
+			22) os_name=kali; system_label="Kali Linux"; distro_versions=(rolling); system_type=linux ;;
+			23) os_name=anolis; system_label="Anolis OS"; distro_versions=(7 8 23); system_type=linux ;;
+			24) os_name=opencloudos; system_label=OpenCloudOS; distro_versions=(8 9 23); system_type=linux ;;
 			31) image_name="Windows 11 Pro"; system_label="$image_name"; system_type=windows ;;
 			32) image_name="Windows 10 Pro"; system_label="$image_name"; system_type=windows ;;
 			33) image_name="Windows Server 2025 SERVERDATACENTER"; system_label="Windows Server 2025 Datacenter"; system_type=windows ;;
@@ -21684,6 +21389,17 @@ reinstall_os_menu() {
 			0) return ;;
 			*) echo "无效的输入!"; break_end; continue ;;
 		esac
+		if [ "$system_type" = linux ]; then
+			selected_os_version=""
+			select_linux_version "$system_label" "${distro_versions[@]}" || continue
+			if [ "$selected_os_version" = rolling ]; then
+				os_version=""
+				system_label="$system_label 滚动版"
+			else
+				os_version="$selected_os_version"
+				system_label="$system_label $os_version"
+			fi
+		fi
 
 		local login_user="" login_port="" login_password="" login_password_confirm="" ssh_key="" auth_choice=""
 		if [ "$system_type" = linux ]; then
@@ -21767,25 +21483,98 @@ reinstall_os_menu() {
 	done
 }
 
+run_vpso_feature() {
+	root_use
+	local feature_name="$1"
+	local vpso_url="https://raw.githubusercontent.com/DeraDream/sh/main/vendor/vps-optimize.sh"
+	local vpso_tmp_dir vpso_script vpso_checksum vpso_runtime
+	vpso_tmp_dir=$(mktemp -d /tmp/kejilion-vpso.XXXXXX) || {
+		echo "无法创建临时目录。"
+		return 1
+	}
+	vpso_script="$vpso_tmp_dir/vps.sh"
+	vpso_checksum="$vpso_tmp_dir/vps.sh.sha256"
+	vpso_runtime="$vpso_tmp_dir/vps-runtime.sh"
+
+	if command -v curl >/dev/null 2>&1; then
+		curl -fsSL --connect-timeout 10 --max-time 120 --retry 2 "$vpso_url" -o "$vpso_script" && \
+		curl -fsSL --connect-timeout 10 --max-time 30 --retry 2 "${vpso_url}.sha256" -o "$vpso_checksum"
+	elif command -v wget >/dev/null 2>&1; then
+		wget -q --timeout=20 --tries=3 -O "$vpso_script" "$vpso_url" && \
+		wget -q --timeout=20 --tries=3 -O "$vpso_checksum" "${vpso_url}.sha256"
+	else
+		install curl
+		curl -fsSL --connect-timeout 10 --max-time 120 --retry 2 "$vpso_url" -o "$vpso_script" && \
+		curl -fsSL --connect-timeout 10 --max-time 30 --retry 2 "${vpso_url}.sha256" -o "$vpso_checksum"
+	fi
+	if [ ! -s "$vpso_script" ] || [ ! -s "$vpso_checksum" ]; then
+		echo "VPS-Optimize 官方脚本或校验文件下载失败。"
+		rm -rf "$vpso_tmp_dir"
+		return 1
+	fi
+
+	if command -v sha256sum >/dev/null 2>&1; then
+		(cd "$vpso_tmp_dir" && sha256sum -c vps.sh.sha256 >/dev/null 2>&1) || {
+			echo "VPS-Optimize SHA-256 校验失败，已拒绝执行。"
+			rm -rf "$vpso_tmp_dir"
+			return 1
+		}
+	elif command -v shasum >/dev/null 2>&1; then
+		local expected_checksum actual_checksum
+		expected_checksum=$(awk 'NR == 1 {print $1}' "$vpso_checksum")
+		actual_checksum=$(shasum -a 256 "$vpso_script" | awk '{print $1}')
+		if [ -z "$expected_checksum" ] || [ "$expected_checksum" != "$actual_checksum" ]; then
+			echo "VPS-Optimize SHA-256 校验失败，已拒绝执行。"
+			rm -rf "$vpso_tmp_dir"
+			return 1
+		fi
+	else
+		echo "系统缺少 SHA-256 校验工具，已拒绝执行远程脚本。"
+		rm -rf "$vpso_tmp_dir"
+		return 1
+	fi
+
+	sed '/^main "\$@"$/d' "$vpso_script" > "$vpso_runtime"
+	if ! bash -n "$vpso_runtime"; then
+		echo "VPS-Optimize 脚本语法检查失败，已拒绝执行。"
+		rm -rf "$vpso_tmp_dir"
+		return 1
+	fi
+	(
+		source "$vpso_runtime"
+		print_breadcrumb() { echo -e "${CYAN}科技lion > $*${PLAIN}"; }
+		ensure_runtime_root
+		if declare -F "$feature_name" >/dev/null 2>&1; then
+			"$feature_name"
+		else
+			echo "上游功能入口不存在：$feature_name"
+			return 1
+		fi
+	)
+	local vpso_result=$?
+	rm -rf "$vpso_tmp_dir"
+	return "$vpso_result"
+}
+
 system_management_menu() {
 	while true; do
 		clear
 		echo -e "${gl_kjlan}科技lion > 系统管理${gl_bai}"
 		echo "------------------------------------------------"
-		echo "1.1  系统信息"
-		echo "1.2  系统更新"
-		echo "1.3  系统清理"
-		echo "1.4  基础工具"
-		echo -e "1.5  重装/DD系统 ${gl_hong}(清空磁盘)${gl_bai}"
+		echo "1.   系统信息"
+		echo "2.   系统更新"
+		echo "3.   系统清理"
+		echo "4.   基础工具"
+		echo -e "5.   重装/DD系统 ${gl_hong}(清空磁盘)${gl_bai}"
 		echo "------------------------------------------------"
 		echo "0.   返回主菜单"
 		read -e -p "请输入你的选择: " system_choice
 		case "$system_choice" in
-			1.1) linux_info ;;
-			1.2) clear; send_stats "系统更新"; linux_update ;;
-			1.3) clear; send_stats "系统清理"; linux_clean ;;
-			1.4) linux_tools ;;
-			1.5) reinstall_os_menu ;;
+			1) linux_info ;;
+			2) clear; send_stats "系统更新"; linux_update ;;
+			3) clear; send_stats "系统清理"; linux_clean ;;
+			4) linux_tools ;;
+			5) reinstall_os_menu ;;
 			0) return ;;
 			*) echo "无效的输入!" ;;
 		esac
@@ -21828,12 +21617,14 @@ echo -e "命令行输入${gl_huang}k${gl_kjlan}可快速启动脚本${gl_bai}"
 echo -e "${gl_kjlan}------------------------${gl_bai}"
 echo -e "${gl_kjlan}1.   ${gl_bai}系统管理 ${gl_huang}(信息/更新/清理/工具/重装)${gl_bai}"
 echo -e "${gl_kjlan}------------------------${gl_bai}"
-echo -e "${gl_kjlan}5.   ${gl_bai}BBR管理"
-echo -e "${gl_kjlan}6.   ${gl_bai}Docker管理"
-echo -e "${gl_kjlan}7.   ${gl_bai}WARP管理"
-echo -e "${gl_kjlan}8.   ${gl_bai}测试脚本合集"
-echo -e "${gl_kjlan}9.   ${gl_bai}甲骨文云脚本合集"
-echo -e "${gl_kjlan}12.  ${gl_bai}后台工作区"
+echo -e "${gl_kjlan}2.   ${gl_bai}BBR管理"
+echo -e "${gl_kjlan}3.   ${gl_bai}Docker管理"
+echo -e "${gl_kjlan}4.   ${gl_bai}反代（Caddy/Nginx） ${gl_huang}(网站/面板反代)${gl_bai}"
+echo -e "${gl_kjlan}5.   ${gl_bai}WARP管理"
+echo -e "${gl_kjlan}6.   ${gl_bai}SSH安全中心 ${gl_huang}(端口/公钥/密钥登录)${gl_bai}"
+echo -e "${gl_kjlan}7.   ${gl_bai}Fail2ban防爆破 ${gl_huang}(自动封禁爆破IP)${gl_bai}"
+echo -e "${gl_kjlan}8.   ${gl_bai}防火墙规则管理 ${gl_huang}(放行/删除/查看/限制)${gl_bai}"
+echo -e "${gl_kjlan}10.  ${gl_bai}测试脚本合集"
 echo -e "${gl_kjlan}13.  ${gl_bai}系统工具"
 echo -e "${gl_kjlan}------------------------${gl_bai}"
 echo -e "${gl_kjlan}00.  ${gl_bai}脚本更新"
@@ -21845,14 +21636,16 @@ read -e -p "请输入你的选择: " choice
 
 case $choice in
   1) system_management_menu ;;
-  5) linux_bbr ;;
-  6) linux_docker ;;
-  7) clear ; send_stats "warp管理" ; install wget
+	2) linux_bbr ;;
+	3) linux_docker ;;
+	4) run_vpso_feature func_caddy_reverse_proxy_menu ;;
+	5) clear ; send_stats "warp管理" ; install wget
 	wget -N https://gitlab.com/fscarmen/warp/-/raw/main/menu.sh ; bash menu.sh [option] [lisence/url/token]
 	;;
-  8) linux_test ;;
-  9) linux_Oracle ;;
-  12) linux_work ;;
+	6) run_vpso_feature func_ssh_security_menu ;;
+	7) run_vpso_feature func_fail2ban ;;
+	8) run_vpso_feature func_firewall_manage ;;
+	10) linux_test ;;
   13) linux_Settings ;;
   00) kejilion_update ;;
   01) uninstall_kejilion_script ;;
