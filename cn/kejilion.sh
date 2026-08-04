@@ -1,5 +1,5 @@
 #!/bin/bash
-sh_v="4.5.11"
+sh_v="4.5.12"
 
 
 gl_hui='\e[37m'
@@ -20685,11 +20685,11 @@ EOF
 			  ;;
 
 		  43)
-			  bash <(curl -fsSL ${gh_proxy}raw.githubusercontent.com/DeraDream/sh/main/ssh_login_summary.sh)
+			  bash <(curl -fsSL "${gh_proxy}raw.githubusercontent.com/DeraDream/sh/main/ssh_login_summary.sh?v=${sh_v}")
 			  ;;
 
 		  44)
-			  bash <(curl -fsSL ${gh_proxy}raw.githubusercontent.com/DeraDream/sh/main/komari_traffic_fix.sh)
+			  bash <(curl -fsSL "${gh_proxy}raw.githubusercontent.com/DeraDream/sh/main/komari_traffic_fix.sh?v=${sh_v}")
 			  ;;
 
 

@@ -168,10 +168,10 @@ esac
 # 同一个 SSH 会话及其所有子 shell 只显示一次。
 [ -z "${VPS_STATUS_SHOWN:-}" ] || return 0 2>/dev/null || exit 0
 
-# 只允许 sshd 直接创建的初始登录 shell，排除任务、sudo 和嵌套 login shell。
+# 只允许 OpenSSH 直接创建的初始登录 shell，兼容新版 sshd-session，排除任务、sudo 和嵌套 login shell。
 PARENT_COMMAND="$(ps -o comm= -p "$PPID" 2>/dev/null | awk '{print $1}')"
 case "$PARENT_COMMAND" in
-    sshd|sshd:*) ;;
+    sshd|sshd:*|sshd-session|sshd-session:*) ;;
     *) return 0 2>/dev/null || exit 0 ;;
 esac
 
