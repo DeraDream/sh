@@ -1,5 +1,5 @@
 #!/bin/bash
-sh_v="4.5.12"
+sh_v="4.5.13"
 
 
 gl_hui='\e[37m'
@@ -19794,45 +19794,47 @@ EOF
 
 
 linux_Settings() {
+	local forced_choice="${1:-}"
 
 	while true; do
+	  if [ -z "$forced_choice" ]; then
 	  clear
 	  # send_stats "系统工具"
 	  echo -e "系统工具"
 	  echo -e "${gl_kjlan}------------------------"
-	  echo -e "${gl_kjlan}1.   ${gl_bai}设置脚本启动快捷键                 ${gl_kjlan}2.   ${gl_bai}修改登录密码"
-	  echo -e "${gl_kjlan}3.   ${gl_bai}用户密码登录模式                   ${gl_kjlan}4.   ${gl_bai}安装Python指定版本"
-	  echo -e "${gl_kjlan}5.   ${gl_bai}开放所有端口                       ${gl_kjlan}6.   ${gl_bai}修改SSH连接端口"
-	  echo -e "${gl_kjlan}9.   ${gl_bai}禁用ROOT账户创建新账户"
-	  echo -e "${gl_kjlan}------------------------"
-	  echo -e "${gl_kjlan}11.  ${gl_bai}查看端口占用状态                   ${gl_kjlan}12.  ${gl_bai}修改虚拟内存大小"
-	  echo -e "${gl_kjlan}13.  ${gl_bai}用户管理                           ${gl_kjlan}14.  ${gl_bai}用户/密码生成器"
-	  echo -e "${gl_kjlan}15.  ${gl_bai}系统时区调整                       ${gl_kjlan}16.  ${gl_bai}设置BBR3加速"
-	  echo -e "${gl_kjlan}17.  ${gl_bai}防火墙高级管理器                   ${gl_kjlan}18.  ${gl_bai}修改主机名"
-	  echo -e "${gl_kjlan}19.  ${gl_bai}切换系统更新源                     ${gl_kjlan}20.  ${gl_bai}定时任务管理"
-	  echo -e "${gl_kjlan}------------------------"
-	  echo -e "${gl_kjlan}21.  ${gl_bai}本机host解析                       ${gl_kjlan}22.  ${gl_bai}SSH防御程序"
-	  echo -e "${gl_kjlan}23.  ${gl_bai}限流自动关机                       ${gl_kjlan}24.  ${gl_bai}用户密钥登录模式"
-	  echo -e "${gl_kjlan}25.  ${gl_bai}TG-bot系统监控预警                 ${gl_kjlan}26.  ${gl_bai}修复OpenSSH高危漏洞"
-	  echo -e "${gl_kjlan}27.  ${gl_bai}红帽系Linux内核升级                ${gl_kjlan}28.  ${gl_bai}Linux系统内核参数优化 ${gl_huang}★${gl_bai}"
-	  echo -e "${gl_kjlan}29.  ${gl_bai}病毒扫描工具 ${gl_huang}★${gl_bai}                     ${gl_kjlan}30.  ${gl_bai}文件管理器"
-	  echo -e "${gl_kjlan}------------------------"
-	  echo -e "${gl_kjlan}31.  ${gl_bai}切换系统语言                       ${gl_kjlan}32.  ${gl_bai}命令行美化工具 ${gl_huang}★${gl_bai}"
-	  echo -e "${gl_kjlan}33.  ${gl_bai}设置系统回收站                     ${gl_kjlan}34.  ${gl_bai}系统备份与恢复"
-	  echo -e "${gl_kjlan}35.  ${gl_bai}ssh远程连接工具                    ${gl_kjlan}36.  ${gl_bai}硬盘分区管理工具"
-	  echo -e "${gl_kjlan}37.  ${gl_bai}命令行历史记录                     ${gl_kjlan}38.  ${gl_bai}rsync远程同步工具"
-	  echo -e "${gl_kjlan}39.  ${gl_bai}命令收藏夹 ${gl_huang}★${gl_bai}"
-	  echo -e "${gl_kjlan}------------------------"
-	  echo -e "${gl_kjlan}41.  ${gl_bai}系统日志管理工具 ${gl_huang}★${gl_bai}                 ${gl_kjlan}42.  ${gl_bai}系统变量管理工具"
-	  echo -e "${gl_kjlan}43.  ${gl_bai}SSH登录摘要管理 ${gl_huang}★${gl_bai}                 ${gl_kjlan}44.  ${gl_bai}Komari Agent流量修正"
-	  echo -e "${gl_kjlan}------------------------"
-	  echo -e "${gl_kjlan}61.  ${gl_bai}留言板                             ${gl_kjlan}66.  ${gl_bai}一条龙系统调优 ${gl_huang}★${gl_bai}"
-	  echo -e "${gl_kjlan}99.  ${gl_bai}重启服务器                         ${gl_kjlan}100. ${gl_bai}隐私与安全"
-	  echo -e "${gl_kjlan}101. ${gl_bai}k命令高级用法 ${gl_huang}★${gl_bai}"
+	  echo -e "${gl_kjlan}1.   ${gl_bai}设置脚本启动快捷键                 ${gl_kjlan}2.   ${gl_bai}安装Python指定版本"
+	  echo -e "${gl_kjlan}3.   ${gl_bai}开放所有端口                       ${gl_kjlan}4.   ${gl_bai}修改虚拟内存大小"
+	  echo -e "${gl_kjlan}5.   ${gl_bai}用户/密码生成器                    ${gl_kjlan}6.   ${gl_bai}系统时区调整"
+	  echo -e "${gl_kjlan}7.   ${gl_bai}设置BBR3加速                       ${gl_kjlan}8.   ${gl_bai}切换系统更新源"
+	  echo -e "${gl_kjlan}9.   ${gl_bai}定时任务管理                       ${gl_kjlan}10.  ${gl_bai}本机host解析"
+	  echo -e "${gl_kjlan}11.  ${gl_bai}限流自动关机                       ${gl_kjlan}12.  ${gl_bai}TG-bot系统监控预警"
+	  echo -e "${gl_kjlan}13.  ${gl_bai}红帽系Linux内核升级                ${gl_kjlan}14.  ${gl_bai}Linux系统内核参数优化 ${gl_huang}★${gl_bai}"
+	  echo -e "${gl_kjlan}15.  ${gl_bai}病毒扫描工具 ${gl_huang}★${gl_bai}                     ${gl_kjlan}16.  ${gl_bai}文件管理器"
+	  echo -e "${gl_kjlan}17.  ${gl_bai}切换系统语言                       ${gl_kjlan}18.  ${gl_bai}命令行美化工具 ${gl_huang}★${gl_bai}"
+	  echo -e "${gl_kjlan}19.  ${gl_bai}设置系统回收站                     ${gl_kjlan}20.  ${gl_bai}系统备份与恢复"
+	  echo -e "${gl_kjlan}21.  ${gl_bai}硬盘分区管理工具                   ${gl_kjlan}22.  ${gl_bai}命令行历史记录"
+	  echo -e "${gl_kjlan}23.  ${gl_bai}rsync远程同步工具                  ${gl_kjlan}24.  ${gl_bai}命令收藏夹 ${gl_huang}★${gl_bai}"
+	  echo -e "${gl_kjlan}25.  ${gl_bai}系统日志管理工具 ${gl_huang}★${gl_bai}                 ${gl_kjlan}26.  ${gl_bai}系统变量管理工具"
+	  echo -e "${gl_kjlan}27.  ${gl_bai}Komari Agent流量修正               ${gl_kjlan}28.  ${gl_bai}留言板"
+	  echo -e "${gl_kjlan}29.  ${gl_bai}一条龙系统调优 ${gl_huang}★${gl_bai}                 ${gl_kjlan}30.  ${gl_bai}重启服务器"
+	  echo -e "${gl_kjlan}31.  ${gl_bai}隐私与安全                         ${gl_kjlan}32.  ${gl_bai}k命令高级用法 ${gl_huang}★${gl_bai}"
 	  echo -e "${gl_kjlan}------------------------"
 	  echo -e "${gl_kjlan}0.   ${gl_bai}返回主菜单"
 	  echo -e "${gl_kjlan}------------------------${gl_bai}"
 	  read -e -p "请输入你的选择: " sub_choice
+	  case "$sub_choice" in
+		2) sub_choice=4 ;; 3) sub_choice=5 ;; 4) sub_choice=12 ;; 5) sub_choice=14 ;;
+		6) sub_choice=15 ;; 7) sub_choice=16 ;; 8) sub_choice=19 ;; 9) sub_choice=20 ;;
+		10) sub_choice=21 ;; 11) sub_choice=23 ;; 12) sub_choice=25 ;; 13) sub_choice=27 ;;
+		14) sub_choice=28 ;; 15) sub_choice=29 ;; 16) sub_choice=30 ;; 17) sub_choice=31 ;;
+		18) sub_choice=32 ;; 19) sub_choice=33 ;; 20) sub_choice=34 ;; 21) sub_choice=36 ;;
+		22) sub_choice=37 ;; 23) sub_choice=38 ;; 24) sub_choice=39 ;; 25) sub_choice=41 ;;
+		26) sub_choice=42 ;; 27) sub_choice=44 ;; 28) sub_choice=61 ;; 29) sub_choice=66 ;;
+		30) sub_choice=99 ;; 31) sub_choice=100 ;; 32) sub_choice=101 ;;
+	  esac
+	  else
+		sub_choice="$forced_choice"
+	  fi
 
 	  case $sub_choice in
 		  1)
@@ -20007,8 +20009,7 @@ EOF
 			send_stats "新用户禁用root"
 			read -e -p "请输入新用户名（输入0退出）: " new_username
 			if [ "$new_username" == "0" ]; then
-				break_end
-				linux_Settings
+				return
 			fi
 
 			create_user_with_sshkey $new_username true
@@ -21053,7 +21054,8 @@ EOF
 				send_stats "无效选择"
 				;;
 		esac
-	done
+		[ -n "$forced_choice" ] && return
+		done
 }
 
 
@@ -21536,6 +21538,93 @@ linux_network() {
 	done
 }
 
+ssh_status_panel() {
+	local ssh_service="sshd"
+	if command -v systemctl >/dev/null 2>&1 && systemctl list-unit-files ssh.service --no-legend 2>/dev/null | grep -q '^ssh\.service'; then
+		ssh_service="ssh"
+	fi
+	local service_status="未知" current_port password_auth pubkey_auth root_login
+	if command -v systemctl >/dev/null 2>&1; then
+		service_status=$(systemctl is-active "$ssh_service" 2>/dev/null || true)
+	elif command -v rc-service >/dev/null 2>&1; then
+		service_status=$(rc-service sshd status >/dev/null 2>&1 && echo active || echo inactive)
+	fi
+	current_port=$(sshd -T 2>/dev/null | awk '$1 == "port" {print $2; exit}')
+	[ -n "$current_port" ] || current_port=$(grep -hE '^[[:space:]]*Port[[:space:]]+[0-9]+' /etc/ssh/sshd_config /etc/ssh/sshd_config.d/*.conf 2>/dev/null | awk '{print $2; exit}')
+	password_auth=$(sshd -T 2>/dev/null | awk '$1 == "passwordauthentication" {print $2; exit}')
+	pubkey_auth=$(sshd -T 2>/dev/null | awk '$1 == "pubkeyauthentication" {print $2; exit}')
+	root_login=$(sshd -T 2>/dev/null | awk '$1 == "permitrootlogin" {print $2; exit}')
+	echo "SSH 状态与配置"
+	echo "------------------------------------------------"
+	echo "服务状态: ${service_status:-未知}"
+	echo "当前端口: ${current_port:-22}"
+	echo "密码登录: ${password_auth:-未知}"
+	echo "密钥登录: ${pubkey_auth:-未知}"
+	echo "Root登录: ${root_login:-未知}"
+	echo "主机名称: $(hostname 2>/dev/null)"
+}
+
+ssh_auth_logs() {
+	clear
+	echo "SSH 登录及认证日志"
+	echo "------------------------------------------------"
+	if command -v journalctl >/dev/null 2>&1; then
+		journalctl -u ssh -u sshd --no-pager -n 100 2>/dev/null
+	elif [ -f /var/log/auth.log ]; then
+		tail -n 100 /var/log/auth.log
+	elif [ -f /var/log/secure ]; then
+		tail -n 100 /var/log/secure
+	else
+		echo "未找到 SSH 认证日志。"
+	fi
+}
+
+ssh_management_menu() {
+	while true; do
+		clear
+		echo -e "${gl_kjlan}科技lion > SSH管理${gl_bai}"
+		echo "------------------------------------------------"
+		echo "1.  SSH状态与配置"
+		echo "2.  修改SSH端口"
+		echo "3.  修改登录密码"
+		echo "4.  密码登录模式"
+		echo "5.  SSH密钥管理"
+		echo "6.  禁用Root并创建新账户"
+		echo "7.  SSH用户管理"
+		echo "8.  SSH远程连接工具"
+		echo "9.  SSH防爆破管理"
+		echo "10. SSH登录及认证日志"
+		echo "11. OpenSSH修复与升级"
+		echo "12. SSH登录摘要管理"
+		echo "13. 查看端口占用"
+		echo "14. 防火墙高级管理器"
+		echo "15. 修改主机名"
+		echo "------------------------------------------------"
+		echo "0.  返回主菜单"
+		read -e -p "请输入你的选择: " ssh_choice
+		case "$ssh_choice" in
+			1) clear; ssh_status_panel ;;
+			2) linux_Settings 6 ;;
+			3) linux_Settings 2 ;;
+			4) linux_Settings 3 ;;
+			5) linux_Settings 24 ;;
+			6) linux_Settings 9 ;;
+			7) linux_Settings 13 ;;
+			8) linux_Settings 35 ;;
+			9) linux_Settings 22 ;;
+			10) ssh_auth_logs ;;
+			11) linux_Settings 26 ;;
+			12) linux_Settings 43 ;;
+			13) linux_Settings 11 ;;
+			14) linux_Settings 17 ;;
+			15) linux_Settings 18 ;;
+			0) return ;;
+			*) echo "无效的输入!" ;;
+		esac
+		break_end
+	done
+}
+
 system_management_menu() {
 	while true; do
 		clear
@@ -21598,9 +21687,10 @@ echo -e "${gl_kjlan}------------------------${gl_bai}"
 echo -e "${gl_kjlan}1.   ${gl_bai}系统管理 ${gl_huang}(信息/更新/清理/工具/重装)${gl_bai}"
 echo -e "${gl_kjlan}2.   ${gl_bai}网络管理 ${gl_huang}(体检/IPv6/DNS/MTU/BBR/WARP)${gl_bai}"
 echo -e "${gl_kjlan}------------------------${gl_bai}"
-echo -e "${gl_kjlan}3.   ${gl_bai}Docker管理"
-echo -e "${gl_kjlan}4.   ${gl_bai}测试脚本合集"
-echo -e "${gl_kjlan}5.   ${gl_bai}系统工具"
+echo -e "${gl_kjlan}3.   ${gl_bai}SSH管理 ${gl_huang}(端口/密码/密钥/用户/防护)${gl_bai}"
+echo -e "${gl_kjlan}4.   ${gl_bai}Docker管理"
+echo -e "${gl_kjlan}5.   ${gl_bai}测试脚本合集"
+echo -e "${gl_kjlan}6.   ${gl_bai}系统工具"
 echo -e "${gl_kjlan}------------------------${gl_bai}"
 echo -e "${gl_kjlan}00.  ${gl_bai}脚本更新"
 echo -e "${gl_kjlan}01.  ${gl_bai}卸载脚本"
@@ -21612,9 +21702,10 @@ read -e -p "请输入你的选择: " choice
 case $choice in
   1) system_management_menu ;;
 	2) linux_network ;;
-	3) linux_docker ;;
-	4) linux_test ;;
-	5) linux_Settings ;;
+	3) ssh_management_menu ;;
+	4) linux_docker ;;
+	5) linux_test ;;
+	6) linux_Settings ;;
   00) kejilion_update ;;
   01) uninstall_kejilion_script ;;
   0) clear ; exit ;;

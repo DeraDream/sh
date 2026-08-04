@@ -27,8 +27,26 @@ fi
 command -v systemctl >/dev/null || die "找不到 systemctl"
 command -v python3 >/dev/null || die "找不到 python3"
 
-UNIT_FILE="$(systemctl show "$SERVICE" -p FragmentPath --value)"
-[ -f "$UNIT_FILE" ] || die "找不到 $SERVICE 的 systemd 服务文件"
+UNIT_FILE="$(systemctl show "$SERVICE" -p FragmentPath --value 2>/dev/null || true)"
+if [ ! -f "$UNIT_FILE" ]; then
+    for candidate in \
+        "/etc/systemd/system/${SERVICE}.service" \
+        "/usr/lib/systemd/system/${SERVICE}.service" \
+        "/lib/systemd/system/${SERVICE}.service"; do
+        if [ -f "$candidate" ]; then
+            UNIT_FILE="$candidate"
+            systemctl daemon-reload
+            break
+        fi
+    done
+fi
+
+if [ ! -f "$UNIT_FILE" ]; then
+    echo "未检测到 Komari Agent，无法修正流量。"
+    echo "请先安装 Komari Agent，并确认 systemd 服务名称为 ${SERVICE}.service。"
+    echo "可使用以下命令检查：systemctl status ${SERVICE}"
+    exit 0
+fi
 
 echo "Komari 流量修正工具"
 echo
