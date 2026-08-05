@@ -1,5 +1,5 @@
 #!/bin/bash
-sh_v="4.5.13"
+sh_v="4.5.14"
 
 
 gl_hui='\e[37m'
@@ -4937,7 +4937,6 @@ add_sshkey() {
 	cat "${HOME}/.ssh/sshkey"
 	echo "--------------------------------"
 
-	sshkey_on
 }
 
 
@@ -4976,7 +4975,6 @@ import_sshkey() {
 	echo "$public_key" >> "$auth_keys"
 	chmod 600 "$auth_keys"
 
-	sshkey_on
 }
 
 
@@ -5055,7 +5053,6 @@ fetch_remote_ssh_keys() {
 	echo ""
 	if (( added > 0 )); then
 		echo "成功添加${added}條新的公鑰到${authorized_keys}"
-		sshkey_on
 	else
 		echo "沒有新的公鑰需要添加（可能已全部存在）"
 	fi
@@ -7099,7 +7096,7 @@ ssh_manager() {
 			1) add_connection ;;
 			2) use_connection ;;
 			3) delete_connection ;;
-			0) break ;;
+			0) return ;;
 			*) echo "無效的選擇，請重試。" ;;
 		esac
 	done
@@ -7558,7 +7555,7 @@ rsync_manager() {
 			4) run_task pull;;
 			5) schedule_task ;;
 			6) delete_task_schedule ;;
-			0) break ;;
+			0) return ;;
 			*) echo "無效的選擇，請重試。" ;;
 		esac
 		read -e -p "按下回車鍵繼續..."
@@ -7985,7 +7982,7 @@ linux_tools() {
 			  ;;
 
 		  0)
-			  kejilion
+			  return
 			  ;;
 
 		  *)
@@ -8644,7 +8641,7 @@ linux_docker() {
 			  ;;
 
 		  0)
-			  kejilion
+			  return
 			  ;;
 		  *)
 			  echo "無效的輸入!"
@@ -8830,7 +8827,7 @@ linux_test() {
 
 
 		  0)
-			  kejilion
+			  return
 
 			  ;;
 		  *)
@@ -8977,7 +8974,7 @@ linux_Oracle() {
 			  send_stats "ipv6修復"
 			  ;;
 		  0)
-			  kejilion
+			  return
 
 			  ;;
 		  *)
@@ -10047,7 +10044,7 @@ linux_ldnmp() {
 		;;
 
 	0)
-		kejilion
+		return
 	  ;;
 
 	*)
@@ -19407,7 +19404,7 @@ discourse,yunsou,ahhhhfs,nsgame,gying" \
 		  ;;
 
 	  0)
-		  kejilion
+		  return
 		  ;;
 	  *)
 		cd ~
@@ -19600,7 +19597,7 @@ linux_work() {
 			  ;;
 
 		  0)
-			  kejilion
+			  return
 			  ;;
 		  *)
 			  echo "無效的輸入!"
@@ -19731,8 +19728,12 @@ fail2ban_panel() {
 						echo "Fail2Ban防禦程序已卸載"
 						break
 						;;
+					0)
+						return 10
+						;;
 					*)
-						break
+						echo "無效的輸入!"
+						break_end
 						;;
 				esac
 		  done
@@ -20850,6 +20851,10 @@ EOF
 
 		  22)
 			fail2ban_panel
+			if [ $? -eq 10 ]; then
+				[ -n "$forced_choice" ] && return
+				continue
+			fi
 			  ;;
 
 
@@ -21229,7 +21234,7 @@ EOF
 
 
 		  0)
-			  kejilion
+			  return
 
 			  ;;
 		  *)

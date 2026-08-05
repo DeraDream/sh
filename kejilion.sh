@@ -1,5 +1,5 @@
 #!/bin/bash
-sh_v="4.5.13"
+sh_v="4.5.14"
 
 
 gl_hui='\e[37m'
@@ -4882,6 +4882,54 @@ restart_ssh() {
 
 }
 
+ssh_password_auth_enabled() {
+	local password_auth
+	password_auth=$(sshd -T 2>/dev/null | awk '$1 == "passwordauthentication" {print $2; exit}')
+	if [ -z "$password_auth" ]; then
+		password_auth=$(grep -hEi '^[[:space:]]*PasswordAuthentication[[:space:]]+' \
+			/etc/ssh/sshd_config /etc/ssh/sshd_config.d/*.conf 2>/dev/null | tail -n 1 | awk '{print tolower($2)}')
+	fi
+	[ "$password_auth" != "no" ]
+}
+
+set_sshd_option() {
+	local option="$1" value="$2" file found="false"
+	for file in /etc/ssh/sshd_config /etc/ssh/sshd_config.d/*.conf; do
+		[ -f "$file" ] || continue
+		if grep -Eqi "^[[:space:]]*#?[[:space:]]*${option}[[:space:]]+" "$file"; then
+			sed -i -E "s|^[[:space:]]*#?[[:space:]]*${option}[[:space:]]+.*|${option} ${value}|I" "$file"
+			found="true"
+		fi
+	done
+	[ "$found" = "true" ] || echo "${option} ${value}" >> /etc/ssh/sshd_config
+}
+
+toggle_ssh_password_auth() {
+	root_use
+	if ssh_password_auth_enabled; then
+		if ! find /root /home -type f -path '*/.ssh/authorized_keys' -exec grep -Eq '^(ssh-(rsa|ed25519|ecdsa)|ecdsa-sha2-|sk-ssh-)' {} \; -print -quit 2>/dev/null | grep -q .; then
+			echo -e "${gl_hong}未检测到有效的 SSH 公钥，已取消禁用密码登录。${gl_bai}"
+			return 1
+		fi
+		set_sshd_option PasswordAuthentication no
+		set_sshd_option PubkeyAuthentication yes
+		set_sshd_option KbdInteractiveAuthentication no
+		set_sshd_option ChallengeResponseAuthentication no
+		set_sshd_option PermitRootLogin prohibit-password
+		sshd -t || { echo -e "${gl_hong}SSH 配置校验失败，请检查配置。${gl_bai}"; return 1; }
+		restart_ssh
+		echo -e "${gl_lv}密码登录已禁用，现在仅允许密钥登录。${gl_bai}"
+		send_stats "禁用SSH密码登录"
+	else
+		set_sshd_option PasswordAuthentication yes
+		set_sshd_option PermitRootLogin yes
+		sshd -t || { echo -e "${gl_hong}SSH 配置校验失败，请检查配置。${gl_bai}"; return 1; }
+		restart_ssh
+		echo -e "${gl_lv}密码登录已开启。${gl_bai}"
+		send_stats "开启SSH密码登录"
+	fi
+}
+
 
 
 correct_ssh_config() {
@@ -4959,7 +5007,6 @@ add_sshkey() {
 	cat "${HOME}/.ssh/sshkey"
 	echo "--------------------------------"
 
-	sshkey_on
 }
 
 
@@ -4998,7 +5045,6 @@ import_sshkey() {
 	echo "$public_key" >> "$auth_keys"
 	chmod 600 "$auth_keys"
 
-	sshkey_on
 }
 
 
@@ -5077,7 +5123,6 @@ fetch_remote_ssh_keys() {
 	echo ""
 	if (( added > 0 )); then
 		echo "成功添加 ${added} 条新的公钥到 ${authorized_keys}"
-		sshkey_on
 	else
 		echo "没有新的公钥需要添加（可能已全部存在）"
 	fi
@@ -7121,7 +7166,7 @@ ssh_manager() {
 			1) add_connection ;;
 			2) use_connection ;;
 			3) delete_connection ;;
-			0) break ;;
+			0) return ;;
 			*) echo "无效的选择，请重试。" ;;
 		esac
 	done
@@ -7580,7 +7625,7 @@ rsync_manager() {
 			4) run_task pull;;
 			5) schedule_task ;;
 			6) delete_task_schedule ;;
-			0) break ;;
+			0) return ;;
 			*) echo "无效的选择，请重试。" ;;
 		esac
 		read -e -p "按回车键继续..."
@@ -8032,7 +8077,7 @@ linux_tools() {
 			  ;;
 
 		  0)
-			  kejilion
+			  return
 			  ;;
 
 		  *)
@@ -8691,7 +8736,7 @@ linux_docker() {
 			  ;;
 
 		  0)
-			  kejilion
+			  return
 			  ;;
 		  *)
 			  echo "无效的输入!"
@@ -8877,7 +8922,7 @@ linux_test() {
 
 
 		  0)
-			  kejilion
+			  return
 
 			  ;;
 		  *)
@@ -9941,7 +9986,7 @@ linux_ldnmp() {
 		;;
 
 	0)
-		kejilion
+		return
 	  ;;
 
 	*)
@@ -19301,7 +19346,7 @@ discourse,yunsou,ahhhhfs,nsgame,gying" \
 		  ;;
 
 	  0)
-		  kejilion
+		  return
 		  ;;
 	  *)
 		cd ~
@@ -19435,8 +19480,12 @@ fail2ban_panel() {
 						echo "Fail2Ban防御程序已卸载"
 						break
 						;;
+					0)
+						return 10
+						;;
 					*)
-						break
+						echo "无效的输入!"
+						break_end
 						;;
 				esac
 		  done
@@ -20498,6 +20547,10 @@ EOF
 
 		  22)
 			fail2ban_panel
+			if [ $? -eq 10 ]; then
+				[ -n "$forced_choice" ] && return
+				continue
+			fi
 			  ;;
 
 
@@ -20876,7 +20929,7 @@ EOF
 
 
 		  0)
-			  kejilion
+			  return
 
 			  ;;
 		  *)
@@ -21610,12 +21663,18 @@ ssh_auth_logs() {
 ssh_management_menu() {
 	while true; do
 		clear
+		local password_auth_action
+		if ssh_password_auth_enabled; then
+			password_auth_action="禁用密码登录（仅允许密钥）"
+		else
+			password_auth_action="开启密码登录"
+		fi
 		echo -e "${gl_kjlan}科技lion > SSH管理${gl_bai}"
 		echo "------------------------------------------------"
 		echo "1.  SSH状态与配置"
 		echo "2.  修改SSH端口"
 		echo "3.  修改登录密码"
-		echo "4.  密码登录模式"
+		echo "4.  ${password_auth_action}"
 		echo "5.  SSH密钥管理"
 		echo "6.  禁用Root并创建新账户"
 		echo "7.  SSH用户管理"
@@ -21634,7 +21693,7 @@ ssh_management_menu() {
 			1) clear; ssh_status_panel ;;
 			2) linux_Settings 6 ;;
 			3) linux_Settings 2 ;;
-			4) linux_Settings 3 ;;
+			4) toggle_ssh_password_auth ;;
 			5) linux_Settings 24 ;;
 			6) linux_Settings 9 ;;
 			7) linux_Settings 13 ;;
