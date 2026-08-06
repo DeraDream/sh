@@ -328,6 +328,12 @@ enable() {
 
 
 break_end() {
+	  # 子菜单以 200 状态返回时，只刷新上一页，不显示完成提示或等待按键。
+	  local previous_status=$?
+	  if [ "$previous_status" -eq 200 ]; then
+		  clear
+		  return 0
+	  fi
 	  echo -e "${gl_lv}操作完成${gl_bai}"
 	  echo "按任意键继续..."
 	  read -n 1 -s -r -p ""
@@ -7138,7 +7144,7 @@ ssh_manager() {
 			1) add_connection ;;
 			2) use_connection ;;
 			3) delete_connection ;;
-			0) return ;;
+			0) return 200 ;;
 			*) echo "无效的选择，请重试。" ;;
 		esac
 	done
@@ -7597,7 +7603,7 @@ rsync_manager() {
 			4) run_task pull;;
 			5) schedule_task ;;
 			6) delete_task_schedule ;;
-			0) return ;;
+			0) return 200 ;;
 			*) echo "无效的选择，请重试。" ;;
 		esac
 		read -e -p "按回车键继续..."
@@ -7723,7 +7729,7 @@ linux_tools() {
 
 	  tools=(
 		curl wget sudo socat htop iftop unzip tar tmux ffmpeg
-		btop ranger ncdu fzf vim nano git speedtest iperf3 nexttrace mtr caddy x-ui codex
+		btop ranger ncdu fzf vim nano git opencode speedtest iperf3 nexttrace mtr caddy x-ui codex
 	  )
 
 	  if command -v apt >/dev/null 2>&1; then
@@ -7753,39 +7759,24 @@ linux_tools() {
 	  for ((i=0; i<${#tools[@]}; i+=2)); do
 		# 左列
 		if command -v "${tools[i]}" >/dev/null 2>&1; then
-		  left=$(printf "✅ %-12s 已安装" "${tools[i]}")
+		  left=$(printf "%2d. ✅ %-12s 已安装" "$((i + 1))" "${tools[i]}")
 		else
-		  left=$(printf "❌ %-12s 未安装" "${tools[i]}")
+		  left=$(printf "%2d. ❌ %-12s 未安装" "$((i + 1))" "${tools[i]}")
 		fi
 
 		# 右列（防止数组越界）
 		if [[ -n "${tools[i+1]}" ]]; then
 		  if command -v "${tools[i+1]}" >/dev/null 2>&1; then
-			right=$(printf "✅ %-12s 已安装" "${tools[i+1]}")
+			right=$(printf "%2d. ✅ %-12s 已安装" "$((i + 2))" "${tools[i+1]}")
 		  else
-			right=$(printf "❌ %-12s 未安装" "${tools[i+1]}")
+			right=$(printf "%2d. ❌ %-12s 未安装" "$((i + 2))" "${tools[i+1]}")
 		  fi
-		  printf "%-42s %s\n" "$left" "$right"
+		  printf "%-46s %s\n" "$left" "$right"
 		else
 		  printf "%s\n" "$left"
 		fi
 	  done
 
-	  echo -e "${gl_kjlan}------------------------"
-	  echo -e "${gl_kjlan}1.   ${gl_bai}curl 下载工具 ${gl_huang}★${gl_bai}                   ${gl_kjlan}2.   ${gl_bai}wget 下载工具 ${gl_huang}★${gl_bai}"
-	  echo -e "${gl_kjlan}3.   ${gl_bai}sudo 超级管理权限工具             ${gl_kjlan}4.   ${gl_bai}socat 通信连接工具"
-	  echo -e "${gl_kjlan}5.   ${gl_bai}htop 系统监控工具                 ${gl_kjlan}6.   ${gl_bai}iftop 网络流量监控工具"
-	  echo -e "${gl_kjlan}7.   ${gl_bai}unzip ZIP压缩解压工具             ${gl_kjlan}8.   ${gl_bai}tar GZ压缩解压工具"
-	  echo -e "${gl_kjlan}9.   ${gl_bai}tmux 多路后台运行工具             ${gl_kjlan}10.  ${gl_bai}ffmpeg 视频编码直播推流工具"
-	  echo -e "${gl_kjlan}------------------------"
-	  echo -e "${gl_kjlan}11.  ${gl_bai}btop 现代化监控工具 ${gl_huang}★${gl_bai}             ${gl_kjlan}12.  ${gl_bai}ranger 文件管理工具"
-	  echo -e "${gl_kjlan}13.  ${gl_bai}ncdu 磁盘占用查看工具             ${gl_kjlan}14.  ${gl_bai}fzf 全局搜索工具"
-	  echo -e "${gl_kjlan}15.  ${gl_bai}vim 文本编辑器                    ${gl_kjlan}16.  ${gl_bai}nano 文本编辑器 ${gl_huang}★${gl_bai}"
-	  echo -e "${gl_kjlan}17.  ${gl_bai}git 版本控制系统                  ${gl_kjlan}18.  ${gl_bai}opencode AI编程助手 ${gl_huang}★${gl_bai}"
-	  echo -e "${gl_kjlan}19.  ${gl_bai}Speedtest 官方测速工具            ${gl_kjlan}20.  ${gl_bai}iperf3 网络性能测试工具"
-	  echo -e "${gl_kjlan}21.  ${gl_bai}NextTrace 路由跟踪工具            ${gl_kjlan}22.  ${gl_bai}mtr 网络诊断工具"
-	  echo -e "${gl_kjlan}23.  ${gl_bai}Caddy Web服务器                   ${gl_kjlan}24.  ${gl_bai}3x-ui 管理面板"
-	  echo -e "${gl_kjlan}25.  ${gl_bai}GPT CLI（OpenAI Codex）"
 	  echo -e "${gl_kjlan}------------------------"
 	  echo -e "${gl_kjlan}31.  ${gl_bai}全部安装 ${gl_huang}★${gl_bai}"
 	  echo -e "${gl_kjlan}33.  ${gl_bai}全部卸载"
@@ -8049,7 +8040,7 @@ linux_tools() {
 			  ;;
 
 		  0)
-			  return
+			  return 200
 			  ;;
 
 		  *)
@@ -8421,7 +8412,7 @@ docker_ssh_migration() {
 				2) migrate_docker ;;
 				3) restore_docker ;;
 				4) delete_backup ;;
-				0) return ;;
+				0) return 200 ;;
 				*) echo -e "${gl_hong}无效选项${gl_bai}" ;;
 			esac
 		break_end
@@ -8708,7 +8699,7 @@ linux_docker() {
 			  ;;
 
 		  0)
-			  return
+			  return 200
 			  ;;
 		  *)
 			  echo "无效的输入!"
@@ -8894,7 +8885,7 @@ linux_test() {
 
 
 		  0)
-			  return
+			  return 200
 
 			  ;;
 		  *)
@@ -9958,7 +9949,7 @@ linux_ldnmp() {
 		;;
 
 	0)
-		return
+		return 200
 	  ;;
 
 	*)
@@ -11476,7 +11467,7 @@ PY
 					openclaw_api_providers_showcase
 					;;
 				0)
-					return 0
+					return 200
 					;;
 				*)
 					echo "无效的选择，请重试。"
@@ -12599,7 +12590,7 @@ openclaw_json_get_bool() {
 					break_end
 					;;
 				0)
-					return 0
+					return 200
 					;;
 				*)
 					echo "无效的选择，请重试。"
@@ -13888,7 +13879,7 @@ EOF
 					break_end
 					;;
 				0)
-					return 0
+					return 200
 					;;
 				*)
 					echo "无效的选择，请重试。"
@@ -14024,7 +14015,7 @@ EOF
 					break_end
 					;;
 				0)
-					return 0
+					return 200
 					;;
 				*)
 					echo "无效的选择，请重试。"
@@ -14242,7 +14233,7 @@ EOF
 					break_end
 					;;
 				0)
-					return 0
+					return 200
 					;;
 				*)
 					echo "无效的选择，请重试。"
@@ -14700,7 +14691,7 @@ except Exception as e:
 					openclaw approvals allowlist remove "$pattern"
 					break_end
 					;;
-				0) return 0 ;;
+				0) return 200 ;;
 				*) echo "无效选择"; sleep 1 ;;
 			esac
 		done
@@ -14756,7 +14747,7 @@ except Exception as e:
 					openclaw_permission_manage_allowlist
 					;;
 				0)
-					return 0
+					return 200
 					;;
 				*)
 					echo "无效的选择，请重试。"
@@ -15202,7 +15193,7 @@ print("✅ 多智能体健康检查完成")
 				7) openclaw_multiagent_health_check; break_end ;;
 				8) openclaw_multiagent_set_identity; break_end ;;
 				9) openclaw_multiagent_cleanup_sessions; break_end ;;
-				0) return 0 ;;
+				0) return 200 ;;
 				*) echo "无效的选择，请重试。"; sleep 1 ;;
 			esac
 		done
@@ -15234,7 +15225,7 @@ openclaw_backup_restore_menu() {
 				3) openclaw_project_backup_export ;;
 				4) openclaw_project_backup_import ;;
 				5) openclaw_backup_delete_file ;;
-				0) return 0 ;;
+				0) return 200 ;;
 				*)
 					echo "无效的选择，请重试。"
 					sleep 1
@@ -15408,7 +15399,7 @@ openclaw_backup_restore_menu() {
 					read -p "按回车返回菜单..."
 					;;
 				0)
-					break
+					return 200
 					;;
 				*)
 					echo "无效选项"
@@ -19318,7 +19309,7 @@ discourse,yunsou,ahhhhfs,nsgame,gying" \
 		  ;;
 
 	  0)
-		  return
+		  return 200
 		  ;;
 	  *)
 		cd ~
@@ -19762,7 +19753,7 @@ env_menu() {
 				source_files
 				;;
 			0)
-				break
+				return 200
 				;;
 			*)
 				echo "无效选项"
@@ -20901,7 +20892,7 @@ EOF
 
 
 		  0)
-			  return
+			  return 200
 
 			  ;;
 		  *)
@@ -21100,7 +21091,7 @@ EOF
 
 			0)  # 返回上一级选单
 				send_stats "返回上一级选单菜单"
-				break
+				return 200
 				;;
 			*)  # 处理无效输入
 				echo "无效的选择，请重新输入"
@@ -21383,7 +21374,7 @@ reinstall_os_menu() {
 			32) image_name="Windows 10 Pro"; system_label="$image_name"; system_type=windows ;;
 			33) image_name="Windows Server 2025 SERVERDATACENTER"; system_label="Windows Server 2025 Datacenter"; system_type=windows ;;
 			34) image_name="Windows Server 2022 SERVERDATACENTER"; system_label="Windows Server 2022 Datacenter"; system_type=windows ;;
-			0) return ;;
+			0) return 200 ;;
 			*) echo "无效的输入!"; break_end; continue ;;
 		esac
 		if [ "$system_type" = linux ]; then
@@ -21584,7 +21575,7 @@ linux_network() {
 			20) linux_bbr ;;
 			21) linux_warp ;;
 			22) net_menu ;;
-			0) return ;;
+			0) return 200 ;;
 			*) echo "无效的输入!" ;;
 		esac
 		break_end
@@ -21677,7 +21668,7 @@ ssh_management_menu() {
 			13) linux_Settings 11 ;;
 			14) linux_Settings 17 ;;
 			15) linux_Settings 18 ;;
-			0) return ;;
+			0) return 200 ;;
 			*) echo "无效的输入!" ;;
 		esac
 		break_end
@@ -21703,7 +21694,7 @@ system_management_menu() {
 			3) clear; send_stats "系统清理"; linux_clean ;;
 			4) linux_tools ;;
 			5) reinstall_os_menu ;;
-			0) return ;;
+			0) return 200 ;;
 			*) echo "无效的输入!" ;;
 		esac
 		break_end
