@@ -1,5 +1,5 @@
 #!/bin/bash
-sh_v="4.5.15"
+sh_v="4.5.16"
 
 
 gl_hui='\e[37m'
@@ -21366,17 +21366,17 @@ reinstall_os_menu() {
 		echo -e "${gl_kjlan}科技lion > 系统管理 > 重装/DD系统${gl_bai}"
 		echo "------------------------------------------------"
 		echo -e "${gl_huang}Linux${gl_bai}"
-		echo "11. Debian                 12. Ubuntu"
-		echo "13. Rocky Linux            14. AlmaLinux"
-		echo "15. CentOS Stream          16. Fedora"
-		echo "17. Alpine Linux           18. Arch Linux"
-		echo "19. Oracle Linux           20. openSUSE"
-		echo "21. openEuler              22. Kali Linux"
-		echo "23. Anolis OS              24. OpenCloudOS"
+		echo "1.  Debian                 2.  Ubuntu"
+		echo "3.  Rocky Linux            4.  AlmaLinux"
+		echo "5.  CentOS Stream          6.  Fedora"
+		echo "7.  Alpine Linux           8.  Arch Linux"
+		echo "9.  Oracle Linux           10. openSUSE"
+		echo "11. openEuler              12. Kali Linux"
+		echo "13. Anolis OS              14. OpenCloudOS"
 		echo "------------------------------------------------"
 		echo -e "${gl_huang}Windows${gl_bai}"
-		echo "31. Windows 11 Pro         32. Windows 10 Pro"
-		echo "33. Windows Server 2025    34. Windows Server 2022"
+		echo "15. Windows 11 Pro         16. Windows 10 Pro"
+		echo "17. Windows Server 2025    18. Windows Server 2022"
 		echo "------------------------------------------------"
 		echo "0.  返回"
 		read -e -p "请选择要安装的系统: " reinstall_choice
@@ -21384,24 +21384,24 @@ reinstall_os_menu() {
 		local os_name="" os_version="" image_name="" system_label="" system_type=""
 		local -a distro_versions=()
 		case "$reinstall_choice" in
-			11) os_name=debian; system_label=Debian; distro_versions=(9 10 11 12 13); system_type=linux ;;
-			12) os_name=ubuntu; system_label=Ubuntu; distro_versions=(18.04 20.04 22.04 24.04 26.04); system_type=linux ;;
-			13) os_name=rocky; system_label="Rocky Linux"; distro_versions=(8 9 10); system_type=linux ;;
-			14) os_name=almalinux; system_label=AlmaLinux; distro_versions=(8 9 10); system_type=linux ;;
-			15) os_name=centos; system_label="CentOS Stream"; distro_versions=(9 10); system_type=linux ;;
-			16) os_name=fedora; system_label=Fedora; distro_versions=(43 44); system_type=linux ;;
-			17) os_name=alpine; system_label="Alpine Linux"; distro_versions=(3.21 3.22 3.23 3.24); system_type=linux ;;
-			18) os_name=arch; system_label="Arch Linux"; distro_versions=(rolling); system_type=linux ;;
-			19) os_name=oracle; system_label="Oracle Linux"; distro_versions=(8 9 10); system_type=linux ;;
-			20) os_name=opensuse; system_label=openSUSE; distro_versions=(16.0 tumbleweed); system_type=linux ;;
-			21) os_name=openeuler; system_label=openEuler; distro_versions=(20.03 22.03 24.03); system_type=linux ;;
-			22) os_name=kali; system_label="Kali Linux"; distro_versions=(rolling); system_type=linux ;;
-			23) os_name=anolis; system_label="Anolis OS"; distro_versions=(7 8 23); system_type=linux ;;
-			24) os_name=opencloudos; system_label=OpenCloudOS; distro_versions=(8 9 23); system_type=linux ;;
-			31) image_name="Windows 11 Pro"; system_label="$image_name"; system_type=windows ;;
-			32) image_name="Windows 10 Pro"; system_label="$image_name"; system_type=windows ;;
-			33) image_name="Windows Server 2025 SERVERDATACENTER"; system_label="Windows Server 2025 Datacenter"; system_type=windows ;;
-			34) image_name="Windows Server 2022 SERVERDATACENTER"; system_label="Windows Server 2022 Datacenter"; system_type=windows ;;
+			1) os_name=debian; system_label=Debian; distro_versions=(9 10 11 12 13); system_type=linux ;;
+			2) os_name=ubuntu; system_label=Ubuntu; distro_versions=(18.04 20.04 22.04 24.04 26.04); system_type=linux ;;
+			3) os_name=rocky; system_label="Rocky Linux"; distro_versions=(8 9 10); system_type=linux ;;
+			4) os_name=almalinux; system_label=AlmaLinux; distro_versions=(8 9 10); system_type=linux ;;
+			5) os_name=centos; system_label="CentOS Stream"; distro_versions=(9 10); system_type=linux ;;
+			6) os_name=fedora; system_label=Fedora; distro_versions=(43 44); system_type=linux ;;
+			7) os_name=alpine; system_label="Alpine Linux"; distro_versions=(3.21 3.22 3.23 3.24); system_type=linux ;;
+			8) os_name=arch; system_label="Arch Linux"; distro_versions=(rolling); system_type=linux ;;
+			9) os_name=oracle; system_label="Oracle Linux"; distro_versions=(8 9 10); system_type=linux ;;
+			10) os_name=opensuse; system_label=openSUSE; distro_versions=(16.0 tumbleweed); system_type=linux ;;
+			11) os_name=openeuler; system_label=openEuler; distro_versions=(20.03 22.03 24.03); system_type=linux ;;
+			12) os_name=kali; system_label="Kali Linux"; distro_versions=(rolling); system_type=linux ;;
+			13) os_name=anolis; system_label="Anolis OS"; distro_versions=(7 8 23); system_type=linux ;;
+			14) os_name=opencloudos; system_label=OpenCloudOS; distro_versions=(8 9 23); system_type=linux ;;
+			15) image_name="Windows 11 Pro"; system_label="$image_name"; system_type=windows ;;
+			16) image_name="Windows 10 Pro"; system_label="$image_name"; system_type=windows ;;
+			17) image_name="Windows Server 2025 SERVERDATACENTER"; system_label="Windows Server 2025 Datacenter"; system_type=windows ;;
+			18) image_name="Windows Server 2022 SERVERDATACENTER"; system_label="Windows Server 2022 Datacenter"; system_type=windows ;;
 			0) return 200 ;;
 			*) echo "无效的输入!"; break_end; continue ;;
 		esac
