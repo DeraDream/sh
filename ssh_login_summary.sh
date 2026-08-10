@@ -288,7 +288,7 @@ while true; do
 			read -r -p "按回车键继续..." _
 			;;
 		0)
-			exit 0
+			exit 200
 			;;
 		*)
 			echo "无效的输入。"

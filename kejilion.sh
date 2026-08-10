@@ -1,5 +1,5 @@
 #!/bin/bash
-sh_v="4.5.16"
+sh_v="4.5.17"
 
 
 gl_hui='\e[37m'
@@ -352,7 +352,8 @@ enable() {
 break_end() {
 	  # 子菜单以 200 状态返回时，只刷新上一页，不显示完成提示或等待按键。
 	  local previous_status=$?
-	  if [ "$previous_status" -eq 200 ]; then
+	  if [ "$previous_status" -eq 200 ] || [ "${MENU_BACK:-false}" = "true" ]; then
+		  MENU_BACK=false
 		  clear
 		  return 0
 	  fi
@@ -611,6 +612,7 @@ while true; do
 			break_end
 			;;
 
+		0) MENU_BACK=true; break ;;
 		*)
 			break  # 跳出循环，退出菜单
 			;;
@@ -672,6 +674,7 @@ while true; do
 				;;
 			esac
 			;;
+		0) MENU_BACK=true; break ;;
 		*)
 			break  # 跳出循环，退出菜单
 			;;
@@ -1214,6 +1217,7 @@ iptables_panel() {
 				  send_stats "清除国家 $country_code 的IP"
 				  ;;
 
+			  0) MENU_BACK=true; break ;;
 			  *)
 				  break  # 跳出循环，退出菜单
 				  ;;
@@ -1609,6 +1613,7 @@ certs_status() {
 				certs_status
 			fi
 	  		  ;;
+		  0) MENU_BACK=true; break ;;
 	  	  *)
 		  	  exit
 	  		  ;;
@@ -2294,6 +2299,7 @@ web_security() {
 					  disable_ddos_defense
 					  ;;
 
+				  0) MENU_BACK=true; break ;;
 				  *)
 					  break
 					  ;;
@@ -2472,6 +2478,7 @@ web_optimization() {
 				  send_stats "nginx_zstd off"
 				  nginx_zstd off
 					  ;;
+				  0) MENU_BACK=true; break ;;
 				  *)
 					  break
 					  ;;
@@ -2972,6 +2979,7 @@ while true; do
 			block_container_port "$docker_name" "$ipv4_address"
 			;;
 
+		0) MENU_BACK=true; break ;;
 		*)
 			break
 			;;
@@ -3077,6 +3085,7 @@ docker_app_plus() {
 				local docker_check_name="${docker_app_service:-$docker_name}"
 				block_container_port "$docker_check_name" "$ipv4_address"
 				;;
+			0) MENU_BACK=true; break ;;
 			*)
 				break
 				;;
@@ -3719,6 +3728,7 @@ stream_panel() {
 				docker restart nginx
 				send_stats "删除四层代理"
 				;;
+			0) MENU_BACK=true; break ;;
 			*)
 				break
 				;;
@@ -3989,6 +3999,7 @@ ldnmp_web_status() {
 				docker run --rm -v /etc/letsencrypt/:/etc/letsencrypt certbot/certbot delete --cert-name "$yuming" -n 2>/dev/null
 
 				;;
+			0) MENU_BACK=true; break ;;
 			*)
 				break  # 跳出循环，退出菜单
 				;;
@@ -4048,6 +4059,7 @@ while true; do
 			sed -i "/\b${app_id}\b/d" /home/docker/appno.txt
 			send_stats "${panelname}卸载"
 			;;
+		0) MENU_BACK=true; break ;;
 		*)
 			break
 			;;
@@ -4431,6 +4443,7 @@ frps_panel() {
 				echo "已经刷新FRP服务状态"
 				;;
 
+			0) MENU_BACK=true; break ;;
 			*)
 				break
 				;;
@@ -4512,6 +4525,7 @@ frpc_panel() {
 				docker restart frpc
 				;;
 
+			0) MENU_BACK=true; break ;;
 			*)
 				break
 				;;
@@ -4637,6 +4651,7 @@ yt_menu_pro() {
 				read -e -p "请输入删除视频名称: " rmdir
 				rm -rf "$VIDEO_DIR/$rmdir"
 				;;
+			0) MENU_BACK=true; break ;;
 			*)
 				break ;;
 		esac
@@ -4873,6 +4888,7 @@ while true; do
 		chattr +i /etc/resolv.conf
 		send_stats "手动编辑DNS配置"
 		;;
+	  0) MENU_BACK=true; break ;;
 	  *)
 		break
 		;;
@@ -5236,6 +5252,7 @@ sshkey_panel() {
 			echo "------------------------"
 			break_end
 			  ;;
+		  0) MENU_BACK=true; break ;;
 		  *)
 			  break  # 跳出循环，退出菜单
 			  ;;
@@ -5635,6 +5652,7 @@ dd_xitong() {
 				exit
 				;;
 
+			  0) MENU_BACK=true; break ;;
 			  *)
 				break
 				;;
@@ -5830,6 +5848,7 @@ bbrv3() {
 					  2)
 						xanmod_uninstall
 						;;
+					  0) MENU_BACK=true; break ;;
 					  *)
 						break
 						;;
@@ -5938,6 +5957,7 @@ elrepo() {
 						server_reboot
 
 						  ;;
+					  0) MENU_BACK=true; break ;;
 					  *)
 						  break  # 跳出循环，退出菜单
 						  ;;
@@ -6070,6 +6090,7 @@ clamav() {
 					  clamav_scan $directories
 					  break_end
 						;;
+					0) MENU_BACK=true; break ;;
 					*)
 					  break  # 跳出循环，退出菜单
 						;;
@@ -6500,6 +6521,7 @@ Kernel_optimize() {
 			  send_stats "内核自动调优"
 			  ;;
 
+		  0) MENU_BACK=true; break ;;
 		  *)
 			  break
 			  ;;
@@ -6580,6 +6602,7 @@ while true; do
 		  update_locale "zh_TW.UTF-8" "zh_TW.UTF-8"
 		  send_stats "切换到繁体中文"
 		  ;;
+	  0) MENU_BACK=true; break ;;
 	  *)
 		  break
 		  ;;
@@ -6658,6 +6681,7 @@ shell_bianse() {
 		local bianse=""
 		shell_bianse_profile
 		;;
+	  0) MENU_BACK=true; break ;;
 	  *)
 		break
 		;;
@@ -6731,6 +6755,7 @@ linux_trash() {
 		  echo "回收站已清空。"
 		fi
 		;;
+	  0) MENU_BACK=true; break ;;
 	  *)
 		break
 		;;
@@ -6873,6 +6898,7 @@ linux_backup() {
 			1) create_backup ;;
 			2) restore_backup ;;
 			3) delete_backup ;;
+			0) MENU_BACK=true; break ;;
 			*) break ;;
 		esac
 		read -e -p "按回车键继续..."
@@ -7373,6 +7399,7 @@ disk_manager() {
 			3) list_mounted_partitions ;;
 			4) format_partition ;;
 			5) check_partition ;;
+			0) MENU_BACK=true; break ;;
 			*) break ;;
 		esac
 		read -e -p "按回车键继续..."
@@ -8113,6 +8140,7 @@ linux_bbr() {
 					sysctl -p
 					server_reboot
 					  ;;
+				  0) MENU_BACK=true; break ;;
 				  *)
 					  break  # 跳出循环，退出菜单
 					  ;;
@@ -8598,6 +8626,7 @@ linux_docker() {
 						  docker network rm $dockernetwork
 						  ;;
 
+					  0) MENU_BACK=true; break ;;
 					  *)
 						  break  # 跳出循环，退出菜单
 						  ;;
@@ -8653,6 +8682,7 @@ linux_docker() {
 						  esac
 						  ;;
 
+					  0) MENU_BACK=true; break ;;
 					  *)
 						  break  # 跳出循环，退出菜单
 						  ;;
@@ -9945,6 +9975,7 @@ linux_ldnmp() {
 					;;
 				esac
 				  ;;
+			  0) MENU_BACK=true; break ;;
 			  *)
 				  break
 				  ;;
@@ -15834,6 +15865,7 @@ while true; do
 					check_docker_app_ip
 					;;
 
+				0) MENU_BACK=true; break ;;
 				*)
 					break
 					;;
@@ -15996,6 +16028,7 @@ while true; do
 					echo "应用已卸载"
 					;;
 
+				0) MENU_BACK=true; break ;;
 				*)
 					break
 					;;
@@ -16348,6 +16381,7 @@ while true; do
 					echo "如果你是默认安装目录那现在项目已经卸载。如果你是自定义安装目录你需要到安装目录下自行执行:"
 					echo "docker compose down && docker compose down --rmi all"
 					;;
+				0) MENU_BACK=true; break ;;
 				*)
 					break
 					;;
@@ -19472,6 +19506,7 @@ fail2ban_panel() {
 						break
 						;;
 					0)
+						MENU_BACK=true
 						return 10
 						;;
 					*)
@@ -19553,6 +19588,7 @@ net_menu() {
 				send_stats "刷新网卡信息"
 				continue
 				;;
+			0) MENU_BACK=true; break ;;
 			*)
 				break
 				;;
@@ -19655,6 +19691,7 @@ log_menu() {
 				echo "✔ journal 日志清理完成"
 				sleep 2
 				;;
+			0) MENU_BACK=true; break ;;
 			*)
 				break
 				;;
@@ -20136,6 +20173,7 @@ EOF
 					send_stats "已设置自定义虚拟内存"
 					;;
 
+				  0) MENU_BACK=true; break ;;
 				  *)
 					break
 					;;
@@ -20210,6 +20248,7 @@ EOF
 					   userdel -r "$username"
 						  ;;
 
+					  0) MENU_BACK=true; break ;;
 					  *)
 						  break  # 跳出循环，退出菜单
 						  ;;
@@ -20336,6 +20375,7 @@ EOF
 					25) set_timedate America/Sao_Paulo ;;
 					26) set_timedate America/Argentina/Buenos_Aires ;;
 					31) set_timedate UTC ;;
+					0) MENU_BACK=true; break ;;
 					*) break ;;
 				esac
 			done
@@ -20426,6 +20466,7 @@ EOF
 				  switch_mirror false false
 				  ;;
 
+			  0) MENU_BACK=true; break ;;
 			  *)
 				  echo "已取消"
 				  ;;
@@ -20492,6 +20533,7 @@ EOF
 						  crontab -e
 						  send_stats "编辑定时任务"
 						  ;;
+					  0) MENU_BACK=true; break ;;
 					  *)
 						  break  # 跳出循环，退出菜单
 						  ;;
@@ -20529,6 +20571,7 @@ EOF
 						  sed -i "/$delhost/d" /etc/hosts
 						  send_stats "本地host解析删除"
 						  ;;
+					  0) MENU_BACK=true; break ;;
 					  *)
 						  break  # 跳出循环，退出菜单
 						  ;;
@@ -20610,6 +20653,7 @@ EOF
 					rm ~/Limiting_Shut_down.sh
 					echo "已关闭限流关机功能"
 					;;
+				  0) MENU_BACK=true; break ;;
 				  *)
 					break
 					;;
@@ -20906,6 +20950,7 @@ EOF
 					  echo "已关闭采集"
 					  send_stats "隐私与安全已关闭采集"
 					  ;;
+				  0) MENU_BACK=true; break ;;
 				  *)
 					  break
 					  ;;
@@ -20927,6 +20972,10 @@ EOF
 			  echo "无效的输入!"
 			  ;;
 	  esac
+	  local action_status=$?
+	  if [ -n "$forced_choice" ]; then
+		  return "$action_status"
+	  fi
 	  break_end
 
 	done
@@ -21302,6 +21351,7 @@ EOF
 			send_stats "关闭脚本自动更新"
 			break_end
 			;;
+		0) MENU_BACK=true; break ;;
 		*)
 			kejilion_sh
 			;;
