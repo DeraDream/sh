@@ -1,5 +1,5 @@
 #!/bin/bash
-sh_v="4.5.18"
+sh_v="4.5.19"
 
 
 gl_hui='\e[37m'
@@ -20402,27 +20402,26 @@ EOF
 			  echo "------------------------"
 			  read -e -p "请输入新的主机名（输入0退出）: " new_hostname
 			  if [ -n "$new_hostname" ] && [ "$new_hostname" != "0" ]; then
-				  if [ -f /etc/alpine-release ]; then
-					  # Alpine
-					  echo "$new_hostname" > /etc/hostname
-					  hostname "$new_hostname"
-				  else
-					  # 其他系统，如 Debian, Ubuntu, CentOS 等
-					  hostnamectl set-hostname "$new_hostname"
-					  sed -i "s/$current_hostname/$new_hostname/g" /etc/hostname
-					  systemctl restart systemd-hostnamed
+				  if ! [[ "$new_hostname" =~ ^[A-Za-z0-9]([A-Za-z0-9.-]{0,251}[A-Za-z0-9])?$ ]] || [[ "$new_hostname" == *..* ]]; then
+					  echo "主机名格式无效，只允许字母、数字、点和连字符，且不能以点或连字符开头/结尾。"
+					  continue
 				  fi
-
-				  if grep -q "127.0.0.1" /etc/hosts; then
-					  sed -i "s/127.0.0.1 .*/127.0.0.1       $new_hostname localhost localhost.localdomain/g" /etc/hosts
+				  cp -p /etc/hostname "/etc/hostname.bak.$(date +%s)" 2>/dev/null || true
+				  cp -p /etc/hosts "/etc/hosts.bak.$(date +%s)" 2>/dev/null || true
+				  if command -v hostnamectl >/dev/null 2>&1; then
+					  hostnamectl set-hostname "$new_hostname" || { echo "主机名设置失败。"; continue; }
 				  else
-					  echo "127.0.0.1       $new_hostname localhost localhost.localdomain" >> /etc/hosts
+					  printf '%s\n' "$new_hostname" > /etc/hostname || { echo "写入 /etc/hostname 失败。"; continue; }
+					  hostname "$new_hostname" || { echo "设置当前主机名失败。"; continue; }
 				  fi
-
-				  if grep -q "^::1" /etc/hosts; then
-					  sed -i "s/^::1 .*/::1             $new_hostname localhost localhost.localdomain ipv6-localhost ipv6-loopback/g" /etc/hosts
+				  # Debian/Ubuntu 常用 127.0.1.1；只改这一条专用映射，避免破坏已有 localhost 配置。
+				  if grep -qE '^[[:space:]]*127\.0\.1\.1[[:space:]]' /etc/hosts; then
+					  sed -i -E "s|^[[:space:]]*127\.0\.1\.1[[:space:]].*|127.0.1.1       $new_hostname|" /etc/hosts
 				  else
-					  echo "::1             $new_hostname localhost localhost.localdomain ipv6-localhost ipv6-loopback" >> /etc/hosts
+					  printf '127.0.1.1       %s\n' "$new_hostname" >> /etc/hosts
+				  fi
+				  if ! getent hosts "$new_hostname" >/dev/null 2>&1; then
+					  echo "警告：主机名已设置，但 /etc/hosts 解析验证失败。"
 				  fi
 
 				  echo "主机名已更改为: $new_hostname"
