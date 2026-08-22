@@ -8,6 +8,48 @@ die() {
     exit 1
 }
 
+install_missing_dependencies() {
+    local missing_python=0
+    command -v python3 >/dev/null 2>&1 || missing_python=1
+
+    if [ "$missing_python" -eq 1 ]; then
+        echo "未检测到 python3，正在自动安装..."
+        if [ -f /etc/os-release ]; then
+            . /etc/os-release
+        else
+            die "无法识别操作系统，请手动安装 python3 后重新运行。"
+        fi
+
+        export DEBIAN_FRONTEND=noninteractive
+        case "${ID:-}" in
+            ubuntu|debian|linuxmint)
+                apt-get update -y && apt-get install -y python3 || die "python3 安装失败。"
+                ;;
+            rhel|centos|fedora|rocky|almalinux|anolis)
+                if command -v dnf >/dev/null 2>&1; then
+                    dnf install -y python3 || die "python3 安装失败。"
+                else
+                    yum install -y python3 || die "python3 安装失败。"
+                fi
+                ;;
+            alpine)
+                apk add --no-cache python3 || die "python3 安装失败。"
+                ;;
+            arch|manjaro)
+                pacman -Sy --noconfirm python || die "python3 安装失败。"
+                ;;
+            opensuse*|suse)
+                zypper --non-interactive install python3 || die "python3 安装失败。"
+                ;;
+            *)
+                die "暂不支持自动安装 python3 的系统：${ID:-unknown}。请手动安装后重新运行。"
+                ;;
+        esac
+    fi
+
+    command -v python3 >/dev/null 2>&1 || die "python3 仍不可用，请手动安装后重新运行。"
+}
+
 prompt_number() {
     local prompt="$1" value
     while true; do
@@ -24,8 +66,8 @@ if [ "$(id -u)" -ne 0 ]; then
     die "请使用 sudo bash $0 运行"
 fi
 
-command -v systemctl >/dev/null || die "找不到 systemctl"
-command -v python3 >/dev/null || die "找不到 python3"
+install_missing_dependencies
+command -v systemctl >/dev/null || die "找不到 systemctl；Komari Agent 流量修正需要 systemd，请确认当前系统使用 systemd。"
 
 UNIT_FILE="$(systemctl show "$SERVICE" -p FragmentPath --value 2>/dev/null || true)"
 if [ ! -f "$UNIT_FILE" ]; then
@@ -135,7 +177,8 @@ if [ "$CHANGE_RESET" = "1" ]; then
 else
     echo "  重置日：保持当前设置（按每月 $RESET_DAY 日计算）"
 fi
-read -r -p "确认执行？[y/N]: " CONFIRM
+read -r -p "确认执行？[Y/n]: " CONFIRM
+CONFIRM="${CONFIRM:-y}"
 case "$CONFIRM" in y|Y|yes|YES) ;; *) echo "已取消。"; exit 0 ;; esac
 
 STAMP="$(date +%Y%m%d-%H%M%S)"
