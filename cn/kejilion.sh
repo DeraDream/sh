@@ -1,5 +1,5 @@
 #!/bin/bash
-sh_v="4.5.17"
+sh_v="4.5.18"
 
 
 gl_hui='\e[37m'
@@ -21751,6 +21751,23 @@ system_management_menu() {
 	done
 }
 
+# SS 一键脚本入口：使用项目内置脚本，缺失时再从上游下载。
+ss_one_click_script() {
+	local script_dir ss_script
+	script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+	ss_script="${script_dir}/singbox.sh"
+	if [ ! -s "$ss_script" ]; then
+		echo "正在下载 SS 一键脚本..."
+		if ! curl -LfsS "https://raw.githubusercontent.com/0xdabiaoge/singbox-lite/main/singbox.sh" -o "$ss_script"; then
+			echo "SS 一键脚本下载失败。"
+			return 1
+		fi
+		chmod +x "$ss_script"
+	fi
+	chmod +x "$ss_script"
+	"$ss_script"
+}
+
 uninstall_kejilion_script() {
 	clear
 	echo "卸载脚本"
@@ -21791,6 +21808,7 @@ echo -e "${gl_kjlan}3.   ${gl_bai}SSH管理 ${gl_huang}(端口/密码/密钥/用
 echo -e "${gl_kjlan}4.   ${gl_bai}Docker管理"
 echo -e "${gl_kjlan}5.   ${gl_bai}测试脚本合集"
 echo -e "${gl_kjlan}6.   ${gl_bai}系统工具"
+echo -e "${gl_kjlan}7.   ${gl_bai}SS一键脚本"
 echo -e "${gl_kjlan}------------------------${gl_bai}"
 echo -e "${gl_kjlan}00.  ${gl_bai}脚本更新"
 echo -e "${gl_kjlan}01.  ${gl_bai}卸载脚本"
@@ -21805,7 +21823,8 @@ case $choice in
 	3) ssh_management_menu ;;
 	4) linux_docker ;;
 	5) linux_test ;;
-	6) linux_Settings ;;
+  6) linux_Settings ;;
+  7) ss_one_click_script ;;
   00) kejilion_update ;;
   01) uninstall_kejilion_script ;;
   0) clear ; exit ;;
