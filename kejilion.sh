@@ -1,5 +1,5 @@
 #!/bin/bash
-sh_v="4.5.20"
+sh_v="4.5.21"
 
 
 gl_hui='\e[37m'
@@ -20410,10 +20410,13 @@ EOF
 				  cp -p /etc/hosts "/etc/hosts.bak.$(date +%s)" 2>/dev/null || true
 				  if command -v hostnamectl >/dev/null 2>&1; then
 					  hostnamectl set-hostname "$new_hostname" || { echo "主机名设置失败。"; continue; }
+					  hostname "$new_hostname" || { echo "设置当前主机名失败。"; continue; }
 				  else
 					  printf '%s\n' "$new_hostname" > /etc/hostname || { echo "写入 /etc/hostname 失败。"; continue; }
 					  hostname "$new_hostname" || { echo "设置当前主机名失败。"; continue; }
 				  fi
+				  HOSTNAME="$new_hostname"
+				  export HOSTNAME
 				  # Debian/Ubuntu 常用 127.0.1.1；只改这一条专用映射，避免破坏已有 localhost 配置。
 				  if grep -qE '^[[:space:]]*127\.0\.1\.1[[:space:]]' /etc/hosts; then
 					  sed -i -E "s|^[[:space:]]*127\.0\.1\.1[[:space:]].*|127.0.1.1       $new_hostname|" /etc/hosts
