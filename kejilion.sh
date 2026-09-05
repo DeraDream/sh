@@ -1,5 +1,5 @@
 #!/bin/bash
-sh_v="4.5.21"
+sh_v="4.5.22"
 
 
 gl_hui='\e[37m'
@@ -21783,16 +21783,26 @@ system_management_menu() {
 
 # SS 一键脚本入口：使用项目内置脚本，缺失时再从上游下载。
 ss_one_click_script() {
-	local script_dir ss_script
-	script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-	ss_script="${script_dir}/singbox.sh"
+	local ss_script ss_tmp ss_url ss_proxy_url
+	ss_script="${HOME}/singbox.sh"
 	if [ ! -s "$ss_script" ]; then
 		echo "正在下载 SS 一键脚本..."
-		if ! curl -LfsS "https://raw.githubusercontent.com/0xdabiaoge/singbox-lite/main/singbox.sh" -o "$ss_script"; then
+		ss_tmp=$(mktemp "${HOME}/singbox.sh.XXXXXX") || return 1
+		ss_url="https://raw.githubusercontent.com/DeraDream/sh/main/singbox.sh"
+		ss_proxy_url="${gh_proxy}raw.githubusercontent.com/DeraDream/sh/main/singbox.sh"
+		if ! curl -LfsS --connect-timeout 10 --max-time 120 --retry 3 --retry-delay 2 "$ss_url" -o "$ss_tmp" && \
+		   ! curl -LfsS --connect-timeout 10 --max-time 120 --retry 3 --retry-delay 2 "$ss_proxy_url" -o "$ss_tmp"; then
+			rm -f "$ss_tmp"
 			echo "SS 一键脚本下载失败。"
 			return 1
 		fi
-		chmod +x "$ss_script"
+		if ! head -1 "$ss_tmp" | grep -q '^#!/bin/bash'; then
+			rm -f "$ss_tmp"
+			echo "SS 一键脚本校验失败。"
+			return 1
+		fi
+		chmod +x "$ss_tmp"
+		mv -f "$ss_tmp" "$ss_script"
 	fi
 	chmod +x "$ss_script"
 	"$ss_script"
