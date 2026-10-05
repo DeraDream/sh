@@ -1,5 +1,5 @@
 #!/bin/bash
-sh_v="4.5.22"
+sh_v="4.5.23"
 
 
 gl_hui='\e[37m'
@@ -21834,6 +21834,12 @@ uninstall_kejilion_script() {
 kejilion_sh() {
 while true; do
 clear
+
+local ss_install_status=""
+if [ -x /usr/local/bin/sing-box ] && [ -s /usr/local/etc/sing-box/config.json ]; then
+	ss_install_status=" ${gl_lv}（已安装）${gl_bai}"
+fi
+
 echo -e "${gl_kjlan}"
 echo "╦╔═╔═╗ ╦╦╦  ╦╔═╗╔╗╔ ╔═╗╦ ╦"
 echo "╠╩╗║╣  ║║║  ║║ ║║║║ ╚═╗╠═╣"
@@ -21848,7 +21854,7 @@ echo -e "${gl_kjlan}3.   ${gl_bai}SSH管理 ${gl_huang}(端口/密码/密钥/用
 echo -e "${gl_kjlan}4.   ${gl_bai}Docker管理"
 echo -e "${gl_kjlan}5.   ${gl_bai}测试脚本合集"
 echo -e "${gl_kjlan}6.   ${gl_bai}系统工具"
-echo -e "${gl_kjlan}7.   ${gl_bai}SS一键脚本"
+echo -e "${gl_kjlan}7.   ${gl_bai}SS一键脚本${ss_install_status}"
 echo -e "${gl_kjlan}------------------------${gl_bai}"
 echo -e "${gl_kjlan}00.  ${gl_bai}脚本更新"
 echo -e "${gl_kjlan}01.  ${gl_bai}卸载脚本"
